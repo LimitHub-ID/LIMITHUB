@@ -74,7 +74,7 @@ task.spawn(function()
         percentLabel.Text = percent .. "%"
         fill.Size = UDim2.new(percent / 100, 0, 1, 0)
         percent += 5
-        task.wait(3)
+        task.wait(10)
     end
     task.wait(1)
     screenGui:Destroy()
