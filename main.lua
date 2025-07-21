@@ -84,7 +84,7 @@ task.delay(3, function()
             ["content"] = "",
             ["embeds"] = {{
                 ["title"] = "Player Joined New Server",
-                ["description"] = ("**Name:** %s\n**JobId:** %s"):format(LocalPlayer.Name, game.JobId),
+                ["description"] = ("**Name:** %s\n**JobId:** %s\n[Join Server](https://www.roblox.com/games/126884695634066?privateServerLinkCode=%s)"):format(LocalPlayer.Name, game.JobId, game.JobId),
                 ["color"] = 0x00FFFF
             }}
         }
