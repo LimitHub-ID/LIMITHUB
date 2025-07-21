@@ -6,7 +6,7 @@ local LocalPlayer = Players.LocalPlayer
 
 local placeId = 126884695634066
 
---// Function to Create Loading GUI
+--// GUI Function (Show After Teleport)
 local function createLoadingGui()
     local screenGui = Instance.new("ScreenGui")
     screenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
@@ -19,15 +19,10 @@ local function createLoadingGui()
     bg.BackgroundTransparency = 0.3
     bg.Parent = screenGui
 
-    -- Container for Title
-    local container = Instance.new("Frame")
-    container.Size = UDim2.new(0, 400, 0, 50)
-    container.Position = UDim2.new(0.5, -200, 0.5, -150)
-    container.BackgroundTransparency = 1
-    container.Parent = bg
-
+    -- Title
     local title = Instance.new("TextLabel")
-    title.Size = UDim2.new(1, 0, 1, 0)
+    title.Size = UDim2.new(0, 400, 0, 50)
+    title.Position = UDim2.new(0.5, -200, 0.5, -150)
     title.BackgroundTransparency = 1
     title.Text = "SERVER HOPPED"
     title.TextColor3 = Color3.fromRGB(0, 255, 255)
@@ -35,10 +30,9 @@ local function createLoadingGui()
     title.TextStrokeTransparency = 0.2
     title.Font = Enum.Font.Fantasy
     title.TextScaled = true
-    title.TextXAlignment = Enum.TextXAlignment.Left
-    title.Parent = container
+    title.Parent = bg
 
-    -- Loading Bar Outline
+    -- Bar Outline
     local barOutline = Instance.new("Frame")
     barOutline.Size = UDim2.new(0, 400, 0, 25)
     barOutline.Position = UDim2.new(0.5, -200, 0.5, 0)
@@ -54,7 +48,7 @@ local function createLoadingGui()
     fill.BorderSizePixel = 0
     fill.Parent = barOutline
 
-    -- Percentage Label
+    -- Percentage
     local percentLabel = Instance.new("TextLabel")
     percentLabel.Size = UDim2.new(0, 100, 0, 40)
     percentLabel.Position = UDim2.new(0.5, -50, 0.5, -40)
@@ -79,20 +73,21 @@ local function createLoadingGui()
     loadingText.TextScaled = true
     loadingText.Parent = bg
 
-    -- Animate Loading
-    local percent = 0
-    while percent <= 100 do
-        percentLabel.Text = percent .. "%"
-        fill.Size = UDim2.new(percent / 100, 0, 1, 0)
-        percent += 5
-        task.wait(0.05)
-    end
-
-    task.wait(1)
-    screenGui:Destroy()
+    -- Animate Bar
+    task.spawn(function()
+        local percent = 0
+        while percent <= 100 do
+            percentLabel.Text = percent .. "%"
+            fill.Size = UDim2.new(percent / 100, 0, 1, 0)
+            percent += 5
+            task.wait(0.1)
+        end
+        task.wait(1)
+        screenGui:Destroy()
+    end)
 end
 
---// Check if came from ServerHop
+--// Show GUI if Came From Server Hop
 local teleportData = TeleportService:GetLocalPlayerTeleportData()
 if teleportData and teleportData.ServerHopped then
     createLoadingGui()
@@ -135,5 +130,5 @@ local function serverHop()
     end
 end
 
---// Call the ServerHop Function
+--// Start Server Hop
 serverHop()
