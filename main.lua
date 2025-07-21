@@ -1,12 +1,20 @@
 local TeleportService = game:GetService("TeleportService")
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
+local StarterGui = game:GetService("StarterGui")
 local LocalPlayer = Players.LocalPlayer
 local placeId = 126884695634066
 
 local loadingScript = [[
 local Players = game:GetService("Players")
+local StarterGui = game:GetService("StarterGui")
 local LocalPlayer = Players.LocalPlayer
+
+-- Disable CoreGui (Chat, Settings, etc.)
+pcall(function()
+    StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.All, false)
+    StarterGui:SetCore("TopbarEnabled", false)
+end)
 
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "LimitHubLoading"
@@ -23,7 +31,7 @@ bg.ZIndex = 999999
 
 local title = Instance.new("TextLabel", bg)
 title.Size = UDim2.new(0, 800, 0, 100)
-title.Position = UDim2.new(0.5, -400, 0.5, -200)
+title.Position = UDim2.new(0.5, -400, 0.5, -250)
 title.BackgroundTransparency = 1
 title.Text = "LIMIT HUB"
 title.TextColor3 = Color3.fromRGB(0, 255, 255)
@@ -31,9 +39,19 @@ title.Font = Enum.Font.Fantasy
 title.TextScaled = true
 title.ZIndex = 1000000
 
+local percentLabel = Instance.new("TextLabel", bg)
+percentLabel.Size = UDim2.new(0, 100, 0, 40)
+percentLabel.Position = UDim2.new(0.5, -50, 0.5, -100)
+percentLabel.BackgroundTransparency = 1
+percentLabel.Text = "0%"
+percentLabel.TextColor3 = Color3.new(1, 1, 1)
+percentLabel.Font = Enum.Font.Code
+percentLabel.TextScaled = true
+percentLabel.ZIndex = 1000000
+
 local barOutline = Instance.new("Frame", bg)
 barOutline.Size = UDim2.new(0, 400, 0, 25)
-barOutline.Position = UDim2.new(0.5, -200, 0.5, 0)
+barOutline.Position = UDim2.new(0.5, -200, 0.5, -50)
 barOutline.BackgroundColor3 = Color3.new(0, 0, 0)
 barOutline.BorderColor3 = Color3.fromRGB(0, 255, 255)
 barOutline.BorderSizePixel = 2
@@ -44,16 +62,6 @@ fill.Size = UDim2.new(0, 0, 1, 0)
 fill.BackgroundColor3 = Color3.fromRGB(0, 255, 255)
 fill.BorderSizePixel = 0
 fill.ZIndex = 1000001
-
-local percentLabel = Instance.new("TextLabel", bg)
-percentLabel.Size = UDim2.new(0, 100, 0, 40)
-percentLabel.Position = UDim2.new(0.5, -50, 0.5, -60)
-percentLabel.BackgroundTransparency = 1
-percentLabel.Text = "0%"
-percentLabel.TextColor3 = Color3.new(1, 1, 1)
-percentLabel.Font = Enum.Font.Code
-percentLabel.TextScaled = true
-percentLabel.ZIndex = 1000000
 
 task.spawn(function()
     local percent = 0
