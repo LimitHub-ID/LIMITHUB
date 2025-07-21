@@ -10,6 +10,7 @@ local LocalPlayer = Players.LocalPlayer
 
 local screenGui = Instance.new("ScreenGui", LocalPlayer:WaitForChild("PlayerGui"))
 screenGui.ResetOnSpawn = false
+screenGui.IgnoreGuiInset = true
 
 local bg = Instance.new("Frame", screenGui)
 bg.Size = UDim2.new(1, 0, 1, 0)
