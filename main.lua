@@ -14,11 +14,11 @@ screenGui.ResetOnSpawn = false
 local bg = Instance.new("Frame", screenGui)
 bg.Size = UDim2.new(1, 0, 1, 0)
 bg.BackgroundColor3 = Color3.new(0, 0, 0)
-bg.BackgroundTransparency = 0.3
+bg.BackgroundTransparency = 0
 
 local title = Instance.new("TextLabel", bg)
-title.Size = UDim2.new(0, 400, 0, 50)
-title.Position = UDim2.new(0.5, -200, 0.5, -150)
+title.Size = UDim2.new(0, 800, 0, 100)
+title.Position = UDim2.new(0.5, -400, 0.5, -200)
 title.BackgroundTransparency = 1
 title.Text = "LIMIT HUB"
 title.TextColor3 = Color3.fromRGB(0, 255, 255)
@@ -39,7 +39,7 @@ fill.BorderSizePixel = 0
 
 local percentLabel = Instance.new("TextLabel", bg)
 percentLabel.Size = UDim2.new(0, 100, 0, 40)
-percentLabel.Position = UDim2.new(0.5, -50, 0.5, -40)
+percentLabel.Position = UDim2.new(0.5, -50, 0.5, -60)
 percentLabel.BackgroundTransparency = 1
 percentLabel.Text = "0%"
 percentLabel.TextColor3 = Color3.new(1, 1, 1)
