@@ -1,17 +1,17 @@
--- ✅ Basic Teleport Test Script
 local TeleportService = game:GetService("TeleportService")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
--- Ilagay mo dito ang tamang Private Server Details mo
 local placeId = 126884695634066
 local privateServerCode = "40206718588419987554943106780552"
 
--- Debug Info
-print("✅ Starting teleport test...")
-print("🧾 PlaceId:", placeId)
-print("🔐 Server Code:", privateServerCode)
-print("👤 LocalPlayer:", LocalPlayer.Name)
+print("🟩 Script running")
+print("🧾 PrivateServerId: " .. tostring(game.PrivateServerId))
+print("🧾 PrivateServerOwnerId: " .. tostring(game.PrivateServerOwnerId))
 
--- Teleport
-TeleportService:TeleportToPrivateServer(placeId, privateServerCode, {LocalPlayer})
+if game.PrivateServerId == "" or game.PrivateServerOwnerId == 0 then
+    print("🟨 Not in private server. Teleporting now...")
+    TeleportService:TeleportToPrivateServer(placeId, privateServerCode, {LocalPlayer})
+else
+    print("✅ Already inside private server. No need to teleport.")
+end
