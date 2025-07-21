@@ -8,14 +8,18 @@ local loadingScript = [[
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
-local screenGui = Instance.new("ScreenGui", LocalPlayer:WaitForChild("PlayerGui"))
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "LimitHubLoading"
 screenGui.ResetOnSpawn = false
 screenGui.IgnoreGuiInset = true
+screenGui.DisplayOrder = 999999
+screenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
 
 local bg = Instance.new("Frame", screenGui)
 bg.Size = UDim2.new(1, 0, 1, 0)
 bg.BackgroundColor3 = Color3.new(0, 0, 0)
 bg.BackgroundTransparency = 0
+bg.ZIndex = 999999
 
 local title = Instance.new("TextLabel", bg)
 title.Size = UDim2.new(0, 800, 0, 100)
@@ -25,6 +29,7 @@ title.Text = "LIMIT HUB"
 title.TextColor3 = Color3.fromRGB(0, 255, 255)
 title.Font = Enum.Font.Fantasy
 title.TextScaled = true
+title.ZIndex = 1000000
 
 local barOutline = Instance.new("Frame", bg)
 barOutline.Size = UDim2.new(0, 400, 0, 25)
@@ -32,11 +37,13 @@ barOutline.Position = UDim2.new(0.5, -200, 0.5, 0)
 barOutline.BackgroundColor3 = Color3.new(0, 0, 0)
 barOutline.BorderColor3 = Color3.fromRGB(0, 255, 255)
 barOutline.BorderSizePixel = 2
+barOutline.ZIndex = 1000000
 
 local fill = Instance.new("Frame", barOutline)
 fill.Size = UDim2.new(0, 0, 1, 0)
 fill.BackgroundColor3 = Color3.fromRGB(0, 255, 255)
 fill.BorderSizePixel = 0
+fill.ZIndex = 1000001
 
 local percentLabel = Instance.new("TextLabel", bg)
 percentLabel.Size = UDim2.new(0, 100, 0, 40)
@@ -46,6 +53,7 @@ percentLabel.Text = "0%"
 percentLabel.TextColor3 = Color3.new(1, 1, 1)
 percentLabel.Font = Enum.Font.Code
 percentLabel.TextScaled = true
+percentLabel.ZIndex = 1000000
 
 task.spawn(function()
     local percent = 0
