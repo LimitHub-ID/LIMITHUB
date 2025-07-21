@@ -1,7 +1,7 @@
 local TeleportService = game:GetService("TeleportService")
 local HttpService = game:GetService("HttpService")
 
-local placeId = 1234567890 -- Example Place ID
+local placeId = 126884695634066 -- Example Place ID
 
 local function hop()
     local servers = HttpService:JSONDecode(HttpService:GetAsync(
