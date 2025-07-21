@@ -2,12 +2,12 @@ local TeleportService = game:GetService("TeleportService")
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 
-local placeId = 126884695634066 -- Gamitin yung current game ID
+local placeId = 126884695634066
 local player = Players.LocalPlayer
 
 local function serverHop()
     local cursor = ""
-    local foundServer = false
+    local smallestServer = nil
 
     repeat
         local success, result = pcall(function()
@@ -19,9 +19,9 @@ local function serverHop()
         if success and result and result.data then
             for _, server in pairs(result.data) do
                 if server.playing < server.maxPlayers and server.id ~= game.JobId then
-                    TeleportService:TeleportToPlaceInstance(placeId, server.id, player)
-                    foundServer = true
-                    return
+                    if not smallestServer or server.playing < smallestServer.playing then
+                        smallestServer = server
+                    end
                 end
             end
             cursor = result.nextPageCursor or ""
@@ -29,10 +29,12 @@ local function serverHop()
             break
         end
 
-        wait(0.5)
+        wait(0.2)
     until cursor == ""
 
-    if not foundServer then
+    if smallestServer then
+        TeleportService:TeleportToPlaceInstance(placeId, smallestServer.id, player)
+    else
         TeleportService:Teleport(placeId, player)
     end
 end
