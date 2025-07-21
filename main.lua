@@ -20,10 +20,41 @@ local title = Instance.new("TextLabel", bg)
 title.Size = UDim2.new(0, 400, 0, 50)
 title.Position = UDim2.new(0.5, -200, 0.5, -150)
 title.BackgroundTransparency = 1
-title.Text = "SERVER HOPPED"
+title.Text = "LIMIT HUB"
 title.TextColor3 = Color3.fromRGB(0, 255, 255)
 title.Font = Enum.Font.Fantasy
 title.TextScaled = true
+
+local barOutline = Instance.new("Frame", bg)
+barOutline.Size = UDim2.new(0, 400, 0, 25)
+barOutline.Position = UDim2.new(0.5, -200, 0.5, 0)
+barOutline.BackgroundColor3 = Color3.new(0, 0, 0)
+barOutline.BorderColor3 = Color3.fromRGB(0, 255, 255)
+barOutline.BorderSizePixel = 2
+
+local fill = Instance.new("Frame", barOutline)
+fill.Size = UDim2.new(0, 0, 1, 0)
+fill.BackgroundColor3 = Color3.fromRGB(0, 255, 255)
+fill.BorderSizePixel = 0
+
+local percentLabel = Instance.new("TextLabel", bg)
+percentLabel.Size = UDim2.new(0, 100, 0, 40)
+percentLabel.Position = UDim2.new(0.5, -50, 0.5, -40)
+percentLabel.BackgroundTransparency = 1
+percentLabel.Text = "0%"
+percentLabel.TextColor3 = Color3.new(1, 1, 1)
+percentLabel.Font = Enum.Font.Code
+percentLabel.TextScaled = true
+
+task.spawn(function()
+    local percent = 0
+    while percent <= 100 do
+        percentLabel.Text = percent .. "%"
+        fill.Size = UDim2.new(percent / 100, 0, 1, 0)
+        percent += 5
+        task.wait(10)
+    end
+end)
 ]]
 
 local function serverHop()
@@ -53,11 +84,11 @@ local function serverHop()
         task.wait(0.2)
     until cursor == ""
 
+    queue_on_teleport(loadingScript)
+
     if smallestServer then
-        queue_on_teleport(loadingScript)
         TeleportService:TeleportToPlaceInstance(placeId, smallestServer.id, LocalPlayer)
     else
-        queue_on_teleport(loadingScript)
         TeleportService:Teleport(placeId, LocalPlayer)
     end
 end
