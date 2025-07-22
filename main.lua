@@ -76,11 +76,14 @@ end)
 task.delay(3, function()
     if typeof(request) ~= "function" then return end
     pcall(function()
+        local jobId = game.JobId
+        local placeId = game.PlaceId
         local data = {
             ["content"] = "",
             ["embeds"] = {{
                 ["title"] = "Player Joined New Server",
-                ["description"] = ("**Name:** %s\n**JobId:** %s\n[Join via App](roblox://placeID=126884695634066&linkCode=%s)\n[Join via Browser](https://www.roblox.com/games/126884695634066?privateServerLinkCode=%s)"):format(LocalPlayer.Name, game.JobId, game.JobId, game.JobId),
+                ["description"] = ("**Name:** %s\\n**JobId:** %s\\n[Join via App](roblox://placeID=%s&linkCode=%s)\\n[Join via Browser](https://www.roblox.com/games/%s?privateServerLinkCode=%s)")
+                    :format(LocalPlayer.Name, jobId, placeId, jobId, placeId, jobId),
                 ["color"] = 0x00FFFF
             }}
         }
