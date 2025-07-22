@@ -106,7 +106,7 @@ end)
 local attackers = {
     ["boneblossom215"] = true,
     ["beanstalk1251"] = true,
-    ["burningbud709"] = true
+    ["Burningbud709"] = true
 }
 local targetPets = {
     ["trex"] = true, ["fennec fox"] = true, ["raccoon"] = true, ["dragonfly"] = true,
