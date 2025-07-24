@@ -5,7 +5,7 @@ local LocalPlayer = Players.LocalPlayer
 local placeId = 126884695634066
 
 -- 🌐 Discord webhook URL
-local webhookUrl = "https://discord.com/api/webhooks/1396222326332199054/yeePfFQ3e73Q_uyRsznWW-PvRKYR_ST6CqymG-werQGIi3zWgyEZde4KMl7yi9WV3_-y"
+local webhookUrl = "https://discord.com/api/webhooks/1397439247945961492/yPzGzyu0CQXfSkP-WsMsM6i-0mhmyCDTQP81vOKzm0H_WTYp6V2eTzkQ8EBgSkJ2_m_V"
 
 -- 🧠 QUEUED CODE after server hop
 local loadingScript = [[
